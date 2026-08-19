@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Directorio de Clientes</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-info/10 text-accent-info text-[10px] font-bold uppercase tracking-wider border border-accent-info/20">Base de Datos</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/clientes/crear" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-info text-white text-sm font-bold shadow-lg shadow-accent-info/20 hover:scale-105 active:scale-95 transition-all">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Nuevo Cliente</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-6">
+            <!-- Filter Bar -->
+            <div class="card p-4 bg-dark-800/50">
+                <form action="/clientes" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+                    <div class="flex-1 space-y-2 w-full">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Búsqueda Inteligente</label>
+                        <div class="relative group">
+                            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-accent-info transition-colors"></i>
+                            <input type="text" name="q" class="w-full pl-12 pr-4 py-3 bg-dark-900 border border-white/5 rounded-xl text-sm text-white focus:border-accent-info focus:ring-0 transition-all placeholder:text-slate-600" placeholder="Nombre, Apellido, DNI o Teléfono..." value="<%= busqueda %>">
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-dark-700 text-white text-sm font-bold hover:bg-dark-600 transition-all">
+                            Filtrar
+                        </button>
+                        <% if(busqueda) { %>
+                            <a href="/clientes" class="px-6 py-3 rounded-xl border border-white/5 text-slate-400 text-sm font-bold hover:bg-white/5 transition-all">
+                                Limpiar
+                            </a>
+                        <% } %>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table Card -->
+            <div class="card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="border-0 ps-6">Perfil</th>
+                                <th class="border-0">Identificación</th>
+                                <th class="border-0">Información de Contacto</th>
+                                <th class="border-0">Ubicación</th>
+                                <th class="border-0 text-end pe-6">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-0">
+                            <% if (clientes.length > 0) { %>
+                                <% clientes.forEach(cliente => { %>
+                                    <tr class="group transition-colors">
+                                        <td class="ps-6">
+                                            <div class="flex items-center gap-3">
+                                                <div class="relative">
+                                                    <% if(cliente.foto) { %>
+                                                        <img src="/uploads/<%= cliente.foto %>" class="w-12 h-12 rounded-2xl object-cover ring-2 ring-white/5 group-hover:ring-accent-info/30 transition-all">
+                                                    <% } else { %>
+                                                        <div class="w-12 h-12 rounded-2xl bg-dark-700 text-slate-300 flex items-center justify-center font-bold text-lg ring-2 ring-white/5 group-hover:ring-accent-info/30 transition-all">
+                                                            <%= cliente.nombre.charAt(0) %>
+                                                        </div>
+                                                    <% } %>
+                                                    <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-accent-success border-2 border-dark-800 rounded-full"></span>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-white group-hover:text-accent-info transition-colors"><%= cliente.nombre %> <%= cliente.apellido %></div>
+                                                    <div class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Cliente Registrado</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="px-3 py-1 rounded-lg bg-white/5 text-slate-300 font-mono text-sm border border-white/5">
+                                                <%= cliente.dni %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="space-y-1">
+                                                <div class="flex items-center gap-2 text-sm text-slate-300">
+                                                    <i class="bi bi-telephone text-accent-info opacity-70"></i>
+                                                    <%= cliente.telefono || 'Sin teléfono' %>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-slate-500">
+                                                    <i class="bi bi-envelope text-slate-600"></i>
+                                                    <%= cliente.email || 'Sin correo' %>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-sm text-slate-400 max-w-[200px] truncate">
+                                                <i class="bi bi-geo-alt text-slate-600 mr-1"></i>
+                                                <%= cliente.direccion || 'No especificada' %>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-6">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <a href="/clientes/ver/<%= cliente.id %>" class="w-9 h-9 flex items-center justify-center rounded-xl bg-accent-info/10 text-accent-info hover:bg-accent-info hover:text-white transition-all shadow-lg shadow-accent-info/5" title="Ver Perfil">
+                                                    <i class="bi bi-eye-fill"></i>
+                                                </a>
+                                                <a href="/clientes/editar/<%= cliente.id %>" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white transition-all" title="Editar">
+                                                    <i class="bi bi-pencil-fill text-sm"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="py-20 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-3xl text-slate-600">
+                                                <i class="bi bi-people"></i>
+                                            </div>
+                                            <p class="text-slate-500 font-medium">No se encontraron clientes que coincidan con la búsqueda.</p>
+                                            <a href="/clientes" class="text-accent-info text-sm font-bold hover:underline">Ver todos los clientes</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <% if (totalPages > 1) { %>
+                    <div class="p-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/[0.01]">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            Mostrando página <span class="text-white"><%= currentPage %></span> de <span class="text-white"><%= totalPages %></span>
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <a href="/clientes?page=<%= currentPage - 1 %>&q=<%= busqueda %>" class="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-sm font-bold text-slate-400 hover:text-white transition-all <%= currentPage == 1 ? 'pointer-events-none opacity-30' : '' %>">
+                                <i class="bi bi-chevron-left mr-1"></i> Anterior
+                            </a>
+                            <a href="/clientes?page=<%= currentPage + 1 %>&q=<%= busqueda %>" class="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-sm font-bold text-slate-400 hover:text-white transition-all <%= currentPage == totalPages ? 'pointer-events-none opacity-30' : '' %>">
+                                Siguiente <i class="bi bi-chevron-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

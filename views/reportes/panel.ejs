@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+<%- include('../partials/sidebar') %>
+
+<main class="transition-all duration-300">
+
+  <!-- Topbar -->
+  <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+    <div class="flex items-center gap-4">
+      <h1 class="text-lg font-bold text-white tracking-tight">Centro de Inteligencia</h1>
+      <span class="px-2 py-0.5 rounded-md bg-accent-info/10 text-accent-info text-[10px] font-bold uppercase tracking-wider border border-accent-info/20">Reportes & Exportación</span>
+    </div>
+  </header>
+
+  <div class="p-8 space-y-6 max-w-6xl mx-auto">
+
+    <!-- Flash error -->
+    <% if(mensajeError && mensajeError.length > 0) { %>
+      <div class="p-4 rounded-xl bg-accent-danger/10 border border-accent-danger/20 text-accent-danger text-sm font-bold flex items-center gap-3">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <%= Array.isArray(mensajeError) ? mensajeError[0] : mensajeError %>
+      </div>
+    <% } %>
+
+    <!-- PASO 1: Período -->
+    <div class="card p-6 space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-accent-primary/10 text-accent-primary flex items-center justify-center text-sm font-black">1</div>
+        <div>
+          <h2 class="text-sm font-bold text-white">Período de análisis</h2>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-widest mt-0.5">Seleccione el rango de fechas</p>
+        </div>
+      </div>
+
+      <!-- Presets -->
+      <div class="flex flex-wrap gap-2">
+        <button type="button" data-preset="hoy"     onclick="setPreset('hoy')"     class="preset-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-400 hover:border-accent-primary hover:text-accent-primary transition-all">Hoy</button>
+        <button type="button" data-preset="semana"  onclick="setPreset('semana')"  class="preset-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-400 hover:border-accent-primary hover:text-accent-primary transition-all">Esta semana</button>
+        <button type="button" data-preset="mes"     onclick="setPreset('mes')"     class="preset-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-400 hover:border-accent-primary hover:text-accent-primary transition-all">Este mes</button>
+        <button type="button" data-preset="mes_ant" onclick="setPreset('mes_ant')" class="preset-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-400 hover:border-accent-primary hover:text-accent-primary transition-all">Mes anterior</button>
+        <button type="button" data-preset="trimestre" onclick="setPreset('trimestre')" class="preset-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-400 hover:border-accent-primary hover:text-accent-primary transition-all">Este trimestre</button>
+        <button type="button" data-preset="anio"    onclick="setPreset('anio')"    class="preset-btn px-3 py-1.5 rounded-lg text-xs font-bold border border-white/10 text-slate-400 hover:border-accent-primary hover:text-accent-primary transition-all">Este año</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Desde</label>
+          <input type="date" id="fecha_inicio"
+                 class="w-full px-4 py-2.5 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-primary focus:ring-0 transition-all cursor-pointer"
+                 value="<%= new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0] %>"
+                 onchange="clearPreview()">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Hasta</label>
+          <input type="date" id="fecha_fin"
+                 class="w-full px-4 py-2.5 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-primary focus:ring-0 transition-all cursor-pointer"
+                 value="<%= new Date().toISOString().split('T')[0] %>"
+                 onchange="clearPreview()">
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2: Tipo de Reporte -->
+    <div class="card p-6 space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-accent-primary/10 text-accent-primary flex items-center justify-center text-sm font-black">2</div>
+        <div>
+          <h2 class="text-sm font-bold text-white">Tipo de reporte</h2>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-widest mt-0.5">¿Qué información desea exportar?</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3" id="tipo-grid">
+
+        <!-- Colocaciones -->
+        <div data-tipo="prestamos" onclick="selectTipo('prestamos')"
+             class="tipo-card active cursor-pointer p-4 rounded-2xl border border-white/5 bg-dark-900 transition-all hover:bg-white/[0.02]">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-3" style="background:rgba(59,130,246,0.12); color:#3b82f6;">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div class="text-sm font-bold text-white">Colocaciones</div>
+          <div class="text-[10px] text-slate-500 font-medium mt-0.5">Préstamos otorgados</div>
+        </div>
+
+        <!-- Recaudos -->
+        <div data-tipo="pagos" onclick="selectTipo('pagos')"
+             class="tipo-card cursor-pointer p-4 rounded-2xl border border-white/5 bg-dark-900 transition-all hover:bg-white/[0.02]">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-3" style="background:rgba(16,185,129,0.12); color:#10b981;">
+            <i class="bi bi-wallet2"></i>
+          </div>
+          <div class="text-sm font-bold text-white">Recaudos</div>
+          <div class="text-[10px] text-slate-500 font-medium mt-0.5">Cobros y amortizaciones</div>
+        </div>
+
+        <!-- Egresos -->
+        <div data-tipo="gastos" onclick="selectTipo('gastos')"
+             class="tipo-card cursor-pointer p-4 rounded-2xl border border-white/5 bg-dark-900 transition-all hover:bg-white/[0.02]">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-3" style="background:rgba(239,68,68,0.12); color:#ef4444;">
+            <i class="bi bi-graph-down-arrow"></i>
+          </div>
+          <div class="text-sm font-bold text-white">Egresos</div>
+          <div class="text-[10px] text-slate-500 font-medium mt-0.5">Gastos operativos</div>
+        </div>
+
+        <!-- Cartera Vencida -->
+        <div data-tipo="cartera_vencida" onclick="selectTipo('cartera_vencida')"
+             class="tipo-card cursor-pointer p-4 rounded-2xl border border-white/5 bg-dark-900 transition-all hover:bg-white/[0.02]">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-3" style="background:rgba(239,68,68,0.12); color:#f87171;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <div class="text-sm font-bold text-white">Cartera Vencida</div>
+          <div class="text-[10px] text-slate-500 font-medium mt-0.5">Préstamos en mora</div>
+        </div>
+
+        <!-- Empeños -->
+        <div data-tipo="empenos" onclick="selectTipo('empenos')"
+             class="tipo-card cursor-pointer p-4 rounded-2xl border border-white/5 bg-dark-900 transition-all hover:bg-white/[0.02]">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-3" style="background:rgba(139,92,246,0.12); color:#8b5cf6;">
+            <i class="bi bi-gem"></i>
+          </div>
+          <div class="text-sm font-bold text-white">Empeños</div>
+          <div class="text-[10px] text-slate-500 font-medium mt-0.5">Artículos en custodia</div>
+        </div>
+
+        <!-- Ahorros -->
+        <div data-tipo="ahorros" onclick="selectTipo('ahorros')"
+             class="tipo-card cursor-pointer p-4 rounded-2xl border border-white/5 bg-dark-900 transition-all hover:bg-white/[0.02]">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-3" style="background:rgba(16,185,129,0.12); color:#34d399;">
+            <i class="bi bi-piggy-bank-fill"></i>
+          </div>
+          <div class="text-sm font-bold text-white">Ahorros</div>
+          <div class="text-[10px] text-slate-500 font-medium mt-0.5">Movimientos de cuentas</div>
+        </div>
+
+        <!-- Rentabilidad -->
+        <div data-tipo="rentabilidad" onclick="selectTipo('rentabilidad')"
+             class="tipo-card cursor-pointer p-4 rounded-2xl border border-white/5 bg-dark-900 transition-all hover:bg-white/[0.02]">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-3" style="background:rgba(245,158,11,0.12); color:#f59e0b;">
+            <i class="bi bi-graph-up-arrow"></i>
+          </div>
+          <div class="text-sm font-bold text-white">Rentabilidad P&L</div>
+          <div class="text-[10px] text-slate-500 font-medium mt-0.5">Estado de resultados</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PASO 3: Vista Previa y Descarga -->
+    <div class="card p-6 space-y-5">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-xl bg-accent-primary/10 text-accent-primary flex items-center justify-center text-sm font-black">3</div>
+        <div>
+          <h2 class="text-sm font-bold text-white">Vista previa y descarga</h2>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-widest mt-0.5">Verifique los datos antes de exportar</p>
+        </div>
+      </div>
+
+      <!-- Botón Vista Previa -->
+      <button type="button" onclick="cargarPreview()"
+              class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:border-accent-primary hover:bg-accent-primary/5 font-bold text-sm transition-all">
+        <i class="bi bi-eye-fill"></i>
+        Vista Previa
+      </button>
+
+      <!-- Preview Section (hidden by default) -->
+      <div id="preview-section" style="display:none;"></div>
+
+      <!-- Botones de Descarga -->
+      <div class="flex flex-wrap gap-3 pt-2 border-t border-white/5">
+        <button type="button" onclick="descargarExcel()"
+                class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style="background:linear-gradient(135deg,#1e3a5f,#2563eb);">
+          <i class="bi bi-file-earmark-spreadsheet-fill text-lg"></i>
+          Descargar Excel
+        </button>
+
+        <button type="button" id="btn-pdf" onclick="descargarPDF()" style="display:none;"
+                class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style="background:linear-gradient(135deg,#7f1d1d,#ef4444);">
+          <i class="bi bi-file-earmark-pdf-fill text-lg"></i>
+          Descargar PDF
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/5">
+        <i class="bi bi-info-circle text-slate-500 text-sm"></i>
+        <p class="text-[10px] text-slate-500 font-medium">Excel compatible con Microsoft Excel y Google Sheets · PDF optimizado para impresión</p>
+      </div>
+    </div>
+
+  </div>
+
+  <%- include('../partials/footer') %>
+</main>
+
+<!-- Hidden download forms -->
+<form id="download-form" action="/reportes/generar" method="POST" style="display:none;">
+  <input type="hidden" name="tipo_reporte" id="f-tipo">
+  <input type="hidden" name="fecha_inicio" id="f-inicio">
+  <input type="hidden" name="fecha_fin"    id="f-fin">
+</form>
+
+<style>
+  /* Tipo card states */
+  .tipo-card {
+    user-select: none;
+  }
+  .tipo-card.active {
+    border-color: rgba(59,130,246,0.4) !important;
+    background: rgba(59,130,246,0.07) !important;
+    box-shadow: 0 0 0 1px rgba(59,130,246,0.15);
+  }
+  /* Preset button active */
+  .preset-btn.active {
+    border-color: rgba(59,130,246,0.6) !important;
+    color: #3b82f6 !important;
+    background: rgba(59,130,246,0.08) !important;
+  }
+  /* PDF btn inline style fix (two style attrs merge issue) */
+  #btn-pdf {
+    background: linear-gradient(135deg, #7f1d1d, #ef4444) !important;
+  }
+</style>
+
+<script>
+(function() {
+  /* ── State ─────────────────────────────────────────────── */
+  let selectedTipo = 'prestamos';
+  const MONEDA = '<%= empresa && empresa.moneda ? empresa.moneda : "$" %>';
+
+  /* ── Preset dates ──────────────────────────────────────── */
+  function fmt(d) { return d.toISOString().split('T')[0]; }
+
+  window.setPreset = function(preset) {
+    const today = new Date();
+    let desde, hasta = fmt(today);
+
+    if      (preset === 'hoy')       { desde = hasta; }
+    else if (preset === 'semana')    { const d = new Date(today); d.setDate(d.getDate() - d.getDay()); desde = fmt(d); }
+    else if (preset === 'mes')       { desde = fmt(new Date(today.getFullYear(), today.getMonth(), 1)); }
+    else if (preset === 'mes_ant')   { desde = fmt(new Date(today.getFullYear(), today.getMonth() - 1, 1)); hasta = fmt(new Date(today.getFullYear(), today.getMonth(), 0)); }
+    else if (preset === 'trimestre') { const q = Math.floor(today.getMonth() / 3); desde = fmt(new Date(today.getFullYear(), q * 3, 1)); }
+    else if (preset === 'anio')      { desde = fmt(new Date(today.getFullYear(), 0, 1)); }
+
+    document.getElementById('fecha_inicio').value = desde;
+    document.getElementById('fecha_fin').value    = hasta;
+
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector('[data-preset="' + preset + '"]');
+    if (btn) btn.classList.add('active');
+
+    clearPreview();
+  };
+
+  /* ── Tipo selection ────────────────────────────────────── */
+  window.selectTipo = function(tipo) {
+    selectedTipo = tipo;
+    document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('active'));
+    const card = document.querySelector('[data-tipo="' + tipo + '"]');
+    if (card) card.classList.add('active');
+
+    // Only cartera_vencida supports PDF
+    document.getElementById('btn-pdf').style.display = tipo === 'cartera_vencida' ? 'flex' : 'none';
+
+    clearPreview();
+  };
+
+  /* ── Preview ───────────────────────────────────────────── */
+  window.clearPreview = function() {
+    const s = document.getElementById('preview-section');
+    s.style.display = 'none';
+    s.innerHTML = '';
+  };
+
+  window.cargarPreview = async function() {
+    const desde = document.getElementById('fecha_inicio').value;
+    const hasta = document.getElementById('fecha_fin').value;
+
+    if (!desde || !hasta) {
+      Swal.fire({ icon: 'warning', title: 'Selecciona el período', background: '#111827', color: '#f1f5f9', confirmButtonColor: '#3b82f6' });
+      return;
+    }
+
+    const section = document.getElementById('preview-section');
+    section.style.display = 'block';
+    section.innerHTML = '<div class="flex items-center justify-center py-8 gap-3"><div class="spinner-dots"><span></span><span></span><span></span></div><span class="text-sm text-slate-400 font-medium">Calculando...</span></div>';
+
+    try {
+      const body = new URLSearchParams({ tipo_reporte: selectedTipo, fecha_inicio: desde, fecha_fin: hasta });
+      const resp = await fetch('/reportes/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+      const data = await resp.json();
+      if (!data.ok) throw new Error(data.error || 'Error');
+      renderPreview(data);
+    } catch(e) {
+      section.innerHTML = '<p class="text-accent-danger text-sm text-center py-4"><i class="bi bi-exclamation-triangle me-2"></i>' + e.message + '</p>';
+    }
+  };
+
+  function fmtMoney(v) {
+    return MONEDA + ' ' + parseFloat(v).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function renderPreview(data) {
+    if (!data.stats || data.stats.length === 0) {
+      document.getElementById('preview-section').innerHTML =
+        '<div class="text-center py-6 text-slate-500 text-sm"><i class="bi bi-inbox text-2xl block mb-2"></i>Sin registros en el período seleccionado</div>';
+      return;
+    }
+
+    const cardsHtml = data.stats.map(s => {
+      const val = s.money ? fmtMoney(s.value) : String(s.value);
+      return `
+        <div class="rounded-xl p-4 border" style="background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.06);">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background:${s.hex}20; color:${s.hex};">
+            <i class="bi ${s.icon} text-base"></i>
+          </div>
+          <div class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">${s.label}</div>
+          <div class="text-lg font-bold text-white mt-0.5" style="color:${s.money && parseFloat(s.value) < 0 ? '#ef4444' : ''}">${val}</div>
+        </div>
+      `;
+    }).join('');
+
+    const tipoLabel = { prestamos: 'Colocaciones', pagos: 'Recaudos', gastos: 'Egresos', cartera_vencida: 'Cartera Vencida', empenos: 'Empeños', ahorros: 'Ahorros', rentabilidad: 'Rentabilidad P&L' };
+
+    document.getElementById('preview-section').innerHTML = `
+      <div class="space-y-4 p-4 rounded-2xl" style="background:rgba(59,130,246,0.03); border:1px solid rgba(59,130,246,0.12);">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-white">${tipoLabel[data.tipo] || data.tipo}</span>
+          <span class="text-[10px] text-slate-500 font-medium">${data.desde} → ${data.hasta}</span>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">${cardsHtml}</div>
+        <div class="flex items-center gap-2 p-3 rounded-xl" style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.15);">
+          <i class="bi bi-check-circle-fill" style="color:#10b981;"></i>
+          <span class="text-xs font-medium text-slate-300">Vista previa lista. Haz clic en <strong>Descargar Excel</strong> para exportar.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ── Downloads ─────────────────────────────────────────── */
+  window.descargarExcel = function() {
+    const desde = document.getElementById('fecha_inicio').value;
+    const hasta = document.getElementById('fecha_fin').value;
+    if (!desde || !hasta) {
+      Swal.fire({ icon: 'warning', title: 'Selecciona el período primero', background: '#111827', color: '#f1f5f9', confirmButtonColor: '#3b82f6' });
+      return;
+    }
+    document.getElementById('f-tipo').value   = selectedTipo;
+    document.getElementById('f-inicio').value = desde;
+    document.getElementById('f-fin').value    = hasta;
+    document.getElementById('download-form').submit();
+  };
+
+  window.descargarPDF = function() {
+    window.open('/reportes/cartera-vencida/pdf', '_blank');
+  };
+
+  // Init: activate "este mes" preset
+  setPreset('mes');
+})();
+</script>
+
+</body>
+</html>

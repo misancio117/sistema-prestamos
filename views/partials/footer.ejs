@@ -1,0 +1,174 @@
+<footer class="mt-auto py-5 px-8 border-t" style="border-color:rgba(255,255,255,0.05); background:rgba(11,17,32,0.5);">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+    <div class="flex items-center gap-2" style="color:#334155; font-size:11.5px; font-weight:500;">
+      <span class="status-dot online"></span>
+      <span style="color:#475569;">Sistema Operativo —</span>
+      <span style="color:#64748b;">v3.0.0</span>
+    </div>
+    <div style="color:#1e293b; font-size:10.5px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;">
+      &copy; <%= new Date().getFullYear() %> MISACORP FINANCIAL GROUP
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  /* ── Flash Messages ──────────────────────────────────────── */
+  const msgOk  = <%- JSON.stringify(Array.isArray(mensajeExito) ? (mensajeExito[0] || '') : (mensajeExito || '')) %>;
+  const msgErr = <%- JSON.stringify(Array.isArray(mensajeError)  ? (mensajeError[0]  || '') : (mensajeError  || '')) %>;
+
+  if (msgOk) {
+    Swal.fire({
+      icon: 'success',
+      title: '¡Operación exitosa!',
+      text: msgOk,
+      timer: 3500,
+      showConfirmButton: false,
+      toast: true,
+      position: 'top-end',
+      background: '#111827',
+      color: '#f1f5f9',
+      iconColor: '#10b981',
+    });
+  }
+
+  if (msgErr) {
+    Swal.fire({
+      icon: 'error',
+      title: '¡Atención!',
+      text: msgErr,
+      confirmButtonColor: '#ef4444',
+      confirmButtonText: 'Entendido',
+      background: '#111827',
+      color: '#f1f5f9',
+    });
+  }
+
+  /* ── Mobile sidebar toggle ───────────────────────────────── */
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  const sidebar   = document.getElementById('sidebar-nav');
+  const overlay   = document.getElementById('sidebar-overlay');
+
+  function openSidebar() {
+    if (sidebar)  sidebar.classList.add('active');
+    if (overlay)  overlay.classList.add('active');
+  }
+  function closeSidebar() {
+    if (sidebar)  sidebar.classList.remove('active');
+    if (overlay)  overlay.classList.remove('active');
+  }
+
+  if (toggleBtn)  toggleBtn.addEventListener('click', openSidebar);
+  if (overlay)    overlay.addEventListener('click', closeSidebar);
+
+  /* ── Global delete confirmation ─────────────────────────── */
+  document.querySelectorAll('[data-confirm-delete]').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      const url = el.getAttribute('href') || el.getAttribute('data-confirm-delete');
+      Swal.fire({
+        title: '¿Confirmar eliminación?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#1e2a3a',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: '#111827',
+        color: '#f1f5f9',
+      }).then(function(result) {
+        if (result.isConfirmed && url) window.location.href = url;
+      });
+    });
+  });
+});
+
+/* ── Legacy confirmarEliminacion() for inline onclick calls ── */
+function confirmarEliminacion(event, url) {
+  event.preventDefault();
+  Swal.fire({
+    title: '¿Confirmar eliminación?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#1e2a3a',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    background: '#111827',
+    color: '#f1f5f9',
+  }).then(function(result) {
+    if (result.isConfirmed) window.location.href = url;
+  });
+}
+
+/* ── finalizarDeuda() helper ── */
+function finalizarDeuda(event, prestamoId) {
+  if (event) event.preventDefault();
+  Swal.fire({
+    title: '¿Finalizar deuda?',
+    icon: 'warning',
+    width: 480,
+    html:
+      '<div style="text-align:left">' +
+        '<p style="font-size:13px;color:#94a3b8;margin:0 0 14px 0;line-height:1.4">Se dará por terminada la deuda sin realizar cobro. El saldo pendiente <strong style="color:#ef4444">NO</strong> se sumará a los fondos.</p>' +
+        '<label style="display:block;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Motivo *</label>' +
+        '<textarea id="swal-motivo" style="width:100%;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box" rows="2" placeholder="Justificación..."></textarea>' +
+      '</div>' +
+      '<div style="text-align:left;margin-top:12px">' +
+        '<label style="display:block;font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">¿Qué pasó con la garantía?</label>' +
+        '<select id="swal-garantia" style="width:100%;background:#1e293b;color:#f1f5f9;border:1px solid #334155;border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box">' +
+          '<option value="devuelto">Devuelta al cliente</option>' +
+          '<option value="abandonado">Abandonada / No retirada</option>' +
+        '</select>' +
+      '</div>',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#1e2a3a',
+    confirmButtonText: 'Sí, finalizar deuda',
+    cancelButtonText: 'Cancelar',
+    background: '#111827',
+    color: '#f1f5f9',
+    didOpen: () => {
+      document.getElementById('swal-motivo').focus();
+    },
+    preConfirm: () => {
+      const motivo = document.getElementById('swal-motivo').value;
+      const garantia = document.getElementById('swal-garantia').value;
+      if (!motivo) {
+        Swal.showValidationMessage('Debe escribir un motivo');
+        return false;
+      }
+      return { motivo, garantia };
+    }
+  }).then(function(result) {
+    if (result.isConfirmed && result.value) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/prestamos/finalizar/' + prestamoId;
+      
+      const inputMotivo = document.createElement('input');
+      inputMotivo.type = 'hidden';
+      inputMotivo.name = 'motivo';
+      inputMotivo.value = result.value.motivo;
+      
+      const inputGarantia = document.createElement('input');
+      inputGarantia.type = 'hidden';
+      inputGarantia.name = 'estado_garantia';
+      inputGarantia.value = result.value.garantia;
+      
+      form.appendChild(inputMotivo);
+      form.appendChild(inputGarantia);
+      document.body.appendChild(form);
+      form.submit();
+    }
+  });
+}
+</script>
+</body>
+</html>

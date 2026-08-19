@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Seguridad y Accesos</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary text-[10px] font-bold uppercase tracking-wider border border-accent-primary/20">Administración de Usuarios</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/usuarios/crear" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-primary text-white text-sm font-bold shadow-lg shadow-accent-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Crear Nuevo Acceso</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="p-8">
+            <div class="card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-6">ID Perfil</th>
+                                <th>Nombre de Usuario</th>
+                                <th>Correo Electrónico</th>
+                                <th>Nivel de Acceso</th>
+                                <th>Estado</th>
+                                <th class="text-center pe-6">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% usuarios.forEach(u => { %>
+                                <tr class="group border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                                    <td class="ps-6">
+                                        <span class="text-xs font-mono font-bold text-slate-500">U-<%= u.id.toString().padStart(3, '0') %></span>
+                                    </td>
+                                    <td>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-xl bg-dark-700 flex items-center justify-center font-bold text-slate-300">
+                                                <%= u.nombre_completo.charAt(0) %>
+                                            </div>
+                                            <div class="font-bold text-white group-hover:text-accent-primary transition-colors">
+                                                <%= u.nombre_completo %>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-xs text-slate-400"><%= u.email %></span>
+                                    </td>
+                                    <td>
+                                        <% if(u.rol == 'admin') { %>
+                                            <span class="px-2 py-1 rounded-md bg-accent-danger/10 text-accent-danger text-[10px] font-bold uppercase border border-accent-danger/20">
+                                                Administrador
+                                            </span>
+                                        <% } else { %>
+                                            <span class="px-2 py-1 rounded-md bg-accent-info/10 text-accent-info text-[10px] font-bold uppercase border border-accent-info/20">
+                                                Operador / Empleado
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if(u.estado == 1) { %>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 rounded-full bg-accent-success shadow-[0_0_8px_rgba(21,128,61,0.5)]"></div>
+                                                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">En Línea / Activo</span>
+                                            </div>
+                                        <% } else { %>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+                                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Suspendido</span>
+                                            </div>
+                                        <% } %>
+                                    </td>
+                                    <td class="text-center pe-6">
+                                        <% if(usuario.id != u.id) { %>
+                                            <a href="#" onclick="confirmarEliminacion(event, '/usuarios/eliminar/<%= u.id %>')" class="w-8 h-8 rounded-lg bg-accent-danger/10 text-accent-danger hover:bg-accent-danger hover:text-white transition-all inline-flex items-center justify-center shadow-sm" title="Revocar Acceso">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        <% } else { %>
+                                            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">Sesión Actual</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/5">
+                <i class="bi bi-shield-lock-fill text-accent-info"></i>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">
+                    Nota de Seguridad: Los administradores tienen acceso total a la configuración del sistema, reportes financieros y eliminación de registros sensibles. Se recomienda asignar este rol con extrema precaución.
+                </p>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <a href="/clientes" class="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    <i class="bi bi-arrow-left text-lg"></i>
+                </a>
+                <h1 class="text-lg font-bold text-white tracking-tight">Expediente del Cliente</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-info/10 text-accent-info text-[10px] font-bold uppercase tracking-wider border border-accent-info/20">Perfil Detallado</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/reportes/estado_cuenta/<%= cliente.id %>" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-dark-800 text-white text-sm font-bold border border-white/5 hover:bg-dark-700 transition-all">
+                    <i class="bi bi-file-earmark-pdf-fill text-accent-danger"></i>
+                    <span>Estado de Cuenta</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-8">
+            <!-- Client Hero Card -->
+            <div class="card p-8 bg-gradient-to-br from-dark-800 to-dark-900 border-white/10 relative overflow-hidden">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-accent-info/5 rounded-full blur-3xl"></div>
+                <div class="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+                    <div class="relative group">
+                        <% if (cliente.foto) { %>
+                            <img src="/uploads/<%= cliente.foto %>" class="w-32 h-32 rounded-[2.5rem] object-cover ring-4 ring-white/5 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                        <% } else { %>
+                            <div class="w-32 h-32 rounded-[2.5rem] bg-accent-info text-white flex items-center justify-center text-5xl font-bold shadow-2xl shadow-accent-info/20 group-hover:scale-105 transition-transform duration-500">
+                                <%= cliente.nombre.charAt(0) %>
+                            </div>
+                        <% } %>
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-accent-success border-4 border-dark-800 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                            <i class="bi bi-check-lg text-lg"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 text-center md:text-left space-y-4">
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-white tracking-tight"><%= cliente.nombre %> <%= cliente.apellido %></h2>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-3">
+                                <span class="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-slate-300 flex items-center gap-2">
+                                    <i class="bi bi-person-badge text-accent-info"></i>
+                                    ID: <%= cliente.dni %>
+                                </span>
+                                <span class="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-slate-300 flex items-center gap-2">
+                                    <i class="bi bi-calendar-check text-accent-success"></i>
+                                    Miembro desde <%= new Date(cliente.createdAt || Date.now()).getFullYear() %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-white/5">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contacto Directo</span>
+                                <p class="text-sm font-semibold text-white flex items-center gap-2">
+                                    <i class="bi bi-telephone text-accent-info"></i>
+                                    <%= cliente.telefono || 'No registrado' %>
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Correo Electrónico</span>
+                                <p class="text-sm font-semibold text-white flex items-center gap-2">
+                                    <i class="bi bi-envelope text-accent-info"></i>
+                                    <%= cliente.email || 'Sin correo' %>
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Residencia</span>
+                                <p class="text-sm font-semibold text-white flex items-center gap-2 truncate">
+                                    <i class="bi bi-geo-alt text-accent-danger"></i>
+                                    <%= cliente.direccion || 'Sin dirección' %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Tabs -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-2 p-1 bg-dark-800 rounded-2xl w-fit border border-white/5">
+                    <button onclick="switchTab('prestamos')" id="btn-prestamos" class="tab-btn px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 bg-accent-info text-white shadow-lg shadow-accent-info/20">
+                        <i class="bi bi-cash-stack"></i> Préstamos
+                        <span class="bg-white/20 px-1.5 py-0.5 rounded-md text-[10px]"><%= prestamos.length %></span>
+                    </button>
+                    <button onclick="switchTab('empenos')" id="btn-empenos" class="tab-btn px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white">
+                        <i class="bi bi-gem"></i> Empeños
+                        <span class="bg-white/10 px-1.5 py-0.5 rounded-md text-[10px]"><%= empenos.length %></span>
+                    </button>
+                    <button onclick="switchTab('ahorros')" id="btn-ahorros" class="tab-btn px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 text-slate-400 hover:text-white">
+                        <i class="bi bi-piggy-bank"></i> Ahorros
+                    </button>
+                </div>
+
+                <!-- Tab Content: Préstamos -->
+                <div id="content-prestamos" class="tab-pane animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div class="card overflow-hidden">
+                        <div class="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                            <h4 class="text-xs font-bold text-white uppercase tracking-[0.2em]">Historial Financiero</h4>
+                            <a href="/prestamos/crear?clienteId=<%= cliente.id %>" class="text-xs font-bold text-accent-info hover:underline">Nuevo Préstamo +</a>
+                        </div>
+                        <% if(prestamos.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th class="ps-6">Referencia</th>
+                                            <th>Fecha</th>
+                                            <th>Capital</th>
+                                            <th>Total Proyectado</th>
+                                            <th>Estado</th>
+                                            <th class="text-end pe-6">Gestión</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% prestamos.forEach(p => { %>
+                                            <tr class="group">
+                                                <td class="ps-6 font-mono text-xs text-accent-info font-bold">#PR-<%= p.id.toString().padStart(4, '0') %></td>
+                                                <td class="text-sm font-medium text-slate-400"><%= new Date(p.fecha_inicio).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) %></td>
+                                                <td class="text-sm font-bold text-white"><%= empresa.moneda %> <%= parseFloat(p.monto_prestado).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %></td>
+                                                <td class="text-sm font-bold text-accent-success"><%= empresa.moneda %> <%= parseFloat(p.monto_total).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %></td>
+                                                <td>
+                                                    <% if(p.estado == 'pendiente') { %>
+                                                        <span class="px-2 py-1 rounded-md bg-accent-warning/10 text-accent-warning text-[10px] font-bold uppercase border border-accent-warning/20">Pendiente</span>
+                                                    <% } else if(p.estado == 'pagado') { %>
+                                                        <span class="px-2 py-1 rounded-md bg-accent-success/10 text-accent-success text-[10px] font-bold uppercase border border-accent-success/20">Pagado</span>
+                                                    <% } else if(p.estado == 'finalizado') { %>
+                                                        <span class="px-2 py-1 rounded-md bg-white/10 text-slate-400 text-[10px] font-bold uppercase border border-white/20">Finalizado</span>
+                                                    <% } else { %>
+                                                        <span class="px-2 py-1 rounded-md bg-accent-danger/10 text-accent-danger text-[10px] font-bold uppercase border border-accent-danger/20">Vencido</span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-end pe-6">
+                                                    <div class="flex items-center justify-end gap-2">
+                                                        <% if(p.estado != 'pagado' && p.estado != 'finalizado') { %>
+                                                            <a href="/pagos/registrar/<%= p.id %>" class="px-3 py-1.5 rounded-lg bg-accent-success/10 text-accent-success hover:bg-accent-success hover:text-white text-xs font-bold transition-all" title="Registrar Pago">
+                                                                Cobrar
+                                                            </a>
+                                                            <button onclick="finalizarDeuda(event, <%= p.id %>)" class="px-3 py-1.5 rounded-lg bg-accent-danger/10 text-accent-danger hover:bg-accent-danger hover:text-white text-xs font-bold transition-all" title="Finalizar Deuda sin cobro">
+                                                                Finalizar
+                                                            </button>
+                                                        <% } %>
+                                                        <a href="/prestamos/cronograma/<%= p.id %>" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-slate-400 hover:text-white transition-all" title="Ver Cronograma">
+                                                            <i class="bi bi-calendar-week"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="py-20 text-center text-slate-500">
+                                <i class="bi bi-cash-stack text-4xl opacity-20 block mb-4"></i>
+                                <p class="text-sm font-medium">No existen préstamos registrados para este cliente.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Empeños -->
+                <div id="content-empenos" class="tab-pane hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div class="card p-8">
+                        <% if(empenos.length > 0) { %>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <% empenos.forEach(e => { %>
+                                    <div class="p-6 rounded-2xl bg-dark-900 border border-white/5 flex items-center gap-6 group hover:border-accent-info/30 transition-all">
+                                        <div class="w-20 h-20 rounded-xl bg-white/5 overflow-hidden flex-shrink-0 border border-white/10 group-hover:scale-105 transition-transform">
+                                            <% if(e.imagen) { %>
+                                                <img src="/uploads/<%= e.imagen %>" class="w-full h-full object-cover">
+                                            <% } else { %>
+                                                <div class="w-full h-full flex items-center justify-center text-slate-700 text-3xl">
+                                                    <i class="bi bi-box"></i>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                        <div class="flex-1 space-y-2">
+                                            <div class="flex justify-between items-start">
+                                                <h6 class="font-bold text-white tracking-tight"><%= e.nombre_articulo %></h6>
+                                                <span class="text-[10px] font-bold text-accent-info uppercase"><%= e.estado.replace('_', ' ') %></span>
+                                            </div>
+                                            <p class="text-xs text-slate-500 line-clamp-1"><%= e.descripcion %></p>
+                                            <div class="pt-2 flex items-center justify-between">
+                                                <span class="text-sm font-bold text-accent-success"><%= empresa.moneda %> <%= e.monto_prestado %></span>
+                                                <a href="/empenos/ver/<%= e.id %>" class="text-[10px] font-bold text-slate-400 hover:text-white flex items-center gap-1">
+                                                    Detalles <i class="bi bi-arrow-right"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <div class="py-12 text-center text-slate-500">
+                                <i class="bi bi-gem text-4xl opacity-20 block mb-4"></i>
+                                <p class="text-sm font-medium">No existen artículos en garantía.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Ahorros -->
+                <div id="content-ahorros" class="tab-pane hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div class="card p-12 text-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-accent-success/5 opacity-20"></div>
+                        <div class="relative z-10 space-y-6">
+                            <% if(cuentaAhorro) { %>
+                                <div class="w-20 h-20 rounded-full bg-accent-success/10 text-accent-success flex items-center justify-center text-4xl mx-auto shadow-inner">
+                                    <i class="bi bi-piggy-bank-fill"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-[0.3em]">Saldo Disponible</span>
+                                    <h1 class="text-5xl font-extrabold text-white tracking-tight">
+                                        <span class="text-accent-success text-3xl font-medium"><%= empresa.moneda %></span>
+                                        <%= parseFloat(cuentaAhorro.saldo_actual).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                                    </h1>
+                                    <p class="text-[10px] font-mono text-slate-500">CTA ID: <%= cuentaAhorro.id.toString().padStart(8, '0') %></p>
+                                </div>
+                                <div class="pt-6">
+                                    <a href="/ahorros/ver/<%= cuentaAhorro.id %>" class="px-8 py-3 rounded-xl bg-accent-success text-white text-sm font-bold shadow-lg shadow-accent-success/20 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                        Ver Historial de Movimientos
+                                    </a>
+                                </div>
+                            <% } else { %>
+                                <div class="w-20 h-20 rounded-full bg-white/5 text-slate-600 flex items-center justify-center text-4xl mx-auto">
+                                    <i class="bi bi-piggy-bank"></i>
+                                </div>
+                                <div class="space-y-2">
+                                    <p class="text-slate-400 font-medium">Este cliente no posee una cuenta de ahorros activa.</p>
+                                    <p class="text-xs text-slate-600 max-w-xs mx-auto">Las cuentas de ahorro permiten al cliente guardar capital y generar intereses o simplemente mantener fondos disponibles.</p>
+                                </div>
+                                <div class="pt-4">
+                                    <a href="/ahorros/aperturar?clienteId=<%= cliente.id %>" class="px-8 py-3 rounded-xl border border-accent-info/30 text-accent-info text-sm font-bold hover:bg-accent-info/10 transition-all inline-flex items-center gap-2">
+                                        <i class="bi bi-plus-circle"></i>
+                                        Aperturar Cuenta Ahora
+                                    </a>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+
+    <script>
+        function switchTab(tabId) {
+            // Hide all content
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            // Show target content
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-accent-info', 'text-white', 'shadow-lg', 'shadow-accent-info/20');
+                btn.classList.add('text-slate-400');
+            });
+            
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('bg-accent-info', 'text-white', 'shadow-lg', 'shadow-accent-info/20');
+        }
+    </script>
+</body>
+</html>

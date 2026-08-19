@@ -1,0 +1,312 @@
+/* ============================================================
+   MISACORP — Polish Layer v4.0
+   Glassmorphism · Skeleton Loaders · Micro-animations
+   ============================================================ */
+
+/* ── SIDEBAR PREMIUM ────────────────────────────────────────── */
+aside#sidebar-nav,
+aside {
+  background: linear-gradient(180deg, #0b0f1e 0%, #0a0e1a 100%);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sidebar link hover glow */
+.sidebar-link {
+  position: relative;
+  overflow: hidden;
+}
+.sidebar-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(59,130,246,0.08) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.sidebar-link:hover::before { opacity: 1; }
+.sidebar-link.active {
+  background: linear-gradient(90deg, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.05) 100%) !important;
+}
+
+/* ── TOPBAR / HEADER GLASS ──────────────────────────────────── */
+main > header,
+header.sticky-top {
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(11,17,32,0.85) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* ── CARD HOVER DEPTH ───────────────────────────────────────── */
+.card {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+}
+.card:hover {
+  box-shadow: 0 6px 28px rgba(0,0,0,0.5) !important;
+}
+
+/* KPI/Stat card specific */
+.stat-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55) !important;
+}
+
+/* ── GLASSMORPHISM UTILITY ──────────────────────────────────── */
+.glass {
+  background: rgba(26,34,53,0.7) !important;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.glass-sm {
+  background: rgba(17,24,39,0.6) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* ── SKELETON LOADER ────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 37%,
+    rgba(255,255,255,0.04) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.skeleton-text {
+  height: 14px;
+  border-radius: 4px;
+  display: block;
+}
+.skeleton-text + .skeleton-text { margin-top: 8px; }
+.skeleton-text.w-1\/2 { width: 50%; }
+.skeleton-text.w-3\/4 { width: 75%; }
+
+.skeleton-avatar {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── SPINNER DOTS ───────────────────────────────────────────── */
+.spinner-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.spinner-dots span {
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  border-radius: 50%;
+  animation: dot-bounce 1.2s ease-in-out infinite;
+}
+.spinner-dots span:nth-child(2) { animation-delay: 0.2s; }
+.spinner-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1.1); opacity: 1; }
+}
+
+/* ── FOCUS VISIBLE ──────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(59,130,246,0.7) !important;
+  outline-offset: 2px !important;
+}
+
+/* Remove default browser focus outline, replaced by above */
+:focus:not(:focus-visible) { outline: none !important; }
+
+/* ── INPUT ICON GROUPS ──────────────────────────────────────── */
+.input-icon-wrap {
+  position: relative;
+}
+.input-icon-wrap .icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ds-text-muted, #64748b);
+  pointer-events: none;
+  transition: color 0.18s ease;
+  font-size: 15px;
+}
+.input-icon-wrap:focus-within .icon {
+  color: var(--ds-blue, #3b82f6);
+}
+.input-icon-wrap input,
+.input-icon-wrap select {
+  padding-left: 2.75rem !important;
+}
+
+/* ── VENCIDOS PULSE ANIMATION ───────────────────────────────── */
+.pulse-danger {
+  animation: pulseGlow 2s cubic-bezier(0.4,0,0.6,1) infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+}
+
+/* ── STATUS INDICATOR DOT ───────────────────────────────────── */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.status-dot.online  { background: #10b981; animation: pulseOnline 2s infinite; }
+.status-dot.offline { background: #475569; }
+.status-dot.warning { background: #f59e0b; }
+.status-dot.danger  { background: #ef4444; animation: pulseGlow 2s infinite; }
+
+@keyframes pulseOnline {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+}
+
+/* ── HOVER TABLE ROW ────────────────────────────────────────── */
+.table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+/* ── BUTTON MICRO ANIMATIONS ────────────────────────────────── */
+.btn:active {
+  transform: scale(0.97) !important;
+}
+.btn-primary:active,
+.btn-success:active,
+.btn-danger:active,
+.btn-warning:active {
+  box-shadow: none !important;
+}
+
+/* ── CHART CONTAINER ────────────────────────────────────────── */
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+/* ── PAGE HEADER FADE ───────────────────────────────────────── */
+main > header {
+  animation: fadeIn 0.18s ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── MODAL ANIMATION ────────────────────────────────────────── */
+.modal.fade .modal-dialog {
+  transition: transform 0.22s ease, opacity 0.22s ease !important;
+  transform: translateY(-12px) scale(0.98) !important;
+}
+.modal.show .modal-dialog {
+  transform: translateY(0) scale(1) !important;
+}
+
+/* ── MOBILE OVERLAY ─────────────────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 1035;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+.sidebar-overlay.active { display: block; }
+
+/* ── EMPTY STATE ENHANCED ───────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  gap: 1rem;
+}
+.empty-state-icon {
+  width: 72px;
+  height: 72px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: var(--ds-text-muted, #64748b);
+}
+.empty-state-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ds-text-2, #cbd5e1);
+  margin: 0;
+}
+.empty-state-text {
+  font-size: 13px;
+  color: var(--ds-text-muted, #64748b);
+  max-width: 320px;
+  margin: 0;
+}
+
+/* ── SCROLLBAR POLISHED ─────────────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* ── SELECTION HIGHLIGHT ────────────────────────────────────── */
+::selection {
+  background: rgba(59,130,246,0.35);
+  color: #fff;
+}
+
+/* ── TRANSITION HELPERS ─────────────────────────────────────── */
+.transition-all  { transition: all 0.2s ease !important; }
+.transition-fast { transition: all 0.12s ease !important; }
+.transition-slow { transition: all 0.35s ease !important; }
+
+/* ── GRADIENT TEXT ──────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── PRINT STYLES ───────────────────────────────────────────── */
+@media print {
+  aside, header, .no-print, nav { display: none !important; }
+  main { margin: 0 !important; width: 100% !important; }
+  body { background: #fff !important; color: #111 !important; }
+  .card { background: #fff !important; box-shadow: none !important; border: 1px solid #ddd !important; }
+  .table { color: #111 !important; }
+  .table thead th { background: #f5f5f5 !important; color: #333 !important; }
+}

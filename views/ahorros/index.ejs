@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Cuentas de Ahorro</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary text-[10px] font-bold uppercase tracking-wider border border-accent-primary/20">Módulo de Captación</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/ahorros/aperturar" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-primary text-white text-sm font-bold shadow-lg shadow-accent-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Aperturar Nueva Cuenta</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="p-8">
+            <% if(mensajeExito && mensajeExito.length > 0) { %>
+                <div class="mb-6 p-4 rounded-xl bg-accent-success/10 border border-accent-success/20 text-accent-success text-sm font-bold flex items-center gap-3">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <%= mensajeExito %>
+                </div>
+            <% } %>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="card p-6 bg-dark-800/50 border-white/5">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Cuentas Activas</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-2xl font-black text-white"><%= cuentas.length %></h3>
+                        <div class="w-10 h-10 rounded-xl bg-accent-info/10 text-accent-info flex items-center justify-center">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 bg-dark-800/50 border-white/5">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Volumen de Ahorro</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-2xl font-black text-accent-success">
+                            <%= empresa.moneda %> <%= cuentas.reduce((acc, c) => acc + parseFloat(c.saldo_actual), 0).toLocaleString() %>
+                        </h3>
+                        <div class="w-10 h-10 rounded-xl bg-accent-success/10 text-accent-success flex items-center justify-center">
+                            <i class="bi bi-bank2"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-6">Expediente</th>
+                                <th>Titular del Ahorro</th>
+                                <th>Identificación</th>
+                                <th class="text-end">Balance Disponible</th>
+                                <th class="text-end pe-6">Gestión</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (cuentas.length > 0) { %>
+                                <% cuentas.forEach(c => { %>
+                                    <tr class="group border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                                        <td class="ps-6">
+                                            <span class="text-xs font-mono font-bold text-slate-500">AC-<%= c.id.toString().padStart(4, '0') %></span>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-10 h-10 rounded-xl bg-dark-700 flex items-center justify-center font-bold text-slate-300">
+                                                    <%= c.nombre.charAt(0) %>
+                                                </div>
+                                                <div class="font-bold text-white group-hover:text-accent-primary transition-colors">
+                                                    <%= c.nombre %> <%= c.apellido %>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="text-xs font-medium text-slate-500"><%= c.dni %></span>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="text-lg font-black text-accent-success">
+                                                <%= empresa.moneda %> <%= parseFloat(c.saldo_actual).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-6">
+                                            <a href="/ahorros/ver/<%= c.id %>" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-slate-300 text-xs font-bold border border-white/5 hover:bg-accent-primary hover:text-white transition-all shadow-sm active:scale-95">
+                                                <i class="bi bi-shuffle"></i>
+                                                <span>Transacciones</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="py-20 text-center">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl text-slate-600">
+                                                <i class="bi bi-wallet2"></i>
+                                            </div>
+                                            <p class="text-sm font-medium text-slate-500 uppercase tracking-widest">No se han aperturado cuentas de ahorro</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

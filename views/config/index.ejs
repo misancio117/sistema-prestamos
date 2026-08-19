@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Parametrización del Sistema</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary text-[10px] font-bold uppercase tracking-wider border border-accent-primary/20">Configuración Global</span>
+            </div>
+        </header>
+
+        <div class="p-8 max-w-5xl mx-auto space-y-8">
+            <% if(mensajeExito && mensajeExito.length > 0) { %>
+                <div class="p-4 rounded-xl bg-accent-success/10 border border-accent-success/20 text-accent-success text-sm font-bold flex items-center gap-3 animate-fade-in">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <%= mensajeExito %>
+                </div>
+            <% } %>
+            <% if(mensajeError && mensajeError.length > 0) { %>
+                <div class="p-4 rounded-xl bg-accent-danger/10 border border-accent-danger/20 text-accent-danger text-sm font-bold flex items-center gap-3 animate-fade-in">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <%= mensajeError %>
+                </div>
+            <% } %>
+
+            <form action="/config/actualizar" method="POST" enctype="multipart/form-data" class="space-y-8">
+                <!-- Identity Card -->
+                <div class="card p-8 bg-dark-800/50 border-white/5 relative overflow-hidden group">
+                    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+                        <!-- Main Info -->
+                        <div class="lg:col-span-8 space-y-6">
+                            <div class="flex items-center gap-4 border-b border-white/5 pb-4">
+                                <div class="w-10 h-10 rounded-xl bg-accent-primary/10 text-accent-primary flex items-center justify-center text-xl">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white tracking-tight">Identidad Corporativa</h3>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="col-span-2 space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Razón Social / Nombre Comercial *</label>
+                                    <input type="text" name="nombre_empresa" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-primary focus:ring-0 transition-all font-bold" value="<%= config.nombre_empresa %>" required>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Identificación Fiscal (RUC/NIT)</label>
+                                    <input type="text" name="ruc" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-primary transition-all" value="<%= config.ruc %>">
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Símbolo Monetario *</label>
+                                    <input type="text" name="moneda" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white font-black focus:border-accent-primary transition-all text-center" value="<%= config.moneda %>" placeholder="$" required>
+                                </div>
+
+                                <div class="col-span-2 space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Domicilio Principal</label>
+                                    <input type="text" name="direccion" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-primary transition-all" value="<%= config.direccion %>">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Contacto Telefónico</label>
+                                    <input type="text" name="telefono" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-primary transition-all" value="<%= config.telefono %>">
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">E-mail Administrativo</label>
+                                    <input type="email" name="email_contacto" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-primary transition-all" value="<%= config.email_contacto %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Logo Section -->
+                        <div class="lg:col-span-4 flex flex-col gap-6">
+                            <div class="p-6 rounded-3xl bg-dark-900 border border-white/5 flex flex-col items-center justify-center text-center space-y-4">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Logotipo Actual</label>
+                                <div class="w-32 h-32 rounded-2xl bg-white/5 p-4 flex items-center justify-center overflow-hidden border border-white/5">
+                                    <% if(config.logo) { %>
+                                        <img src="/uploads/<%= config.logo %>" alt="Logo" class="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
+                                    <% } else { %>
+                                        <i class="bi bi-image text-4xl text-slate-700"></i>
+                                    <% } %>
+                                </div>
+                                <div class="w-full pt-4">
+                                    <label for="logo-upload" class="w-full py-3 px-4 rounded-xl bg-white/5 text-slate-300 text-xs font-bold border border-white/10 hover:bg-white/10 transition-all cursor-pointer flex items-center justify-center gap-2">
+                                        <i class="bi bi-cloud-arrow-up"></i>
+                                        Cargar Nueva Imagen
+                                    </label>
+                                    <input type="file" id="logo-upload" name="logo" class="hidden" accept="image/*">
+                                    <p class="text-[9px] text-slate-600 mt-2 font-bold uppercase">Formato sugerido: PNG transparente</p>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-5 rounded-2xl bg-accent-primary text-white font-bold text-xs uppercase tracking-[0.2em] shadow-lg shadow-accent-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+                                <i class="bi bi-check2-circle text-lg"></i>
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Maintenance & Security Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Backup -->
+                <div class="card p-8 bg-dark-800/50 border-white/5 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-accent-info/10 text-accent-info flex items-center justify-center text-2xl">
+                            <i class="bi bi-database-fill-gear"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold tracking-tight">Copia de Respaldo</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                                Genere un volcado estructurado (SQL) de toda la base de datos para migración o auditoría externa.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="pt-6">
+                        <a href="/backup/descargar" class="w-full py-3 px-4 rounded-xl bg-white/5 text-slate-300 text-[10px] font-bold uppercase tracking-widest border border-white/5 hover:bg-accent-info hover:text-white transition-all inline-flex items-center justify-center gap-2">
+                            <i class="bi bi-download"></i>
+                            Descargar Backup SQL
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="card p-8 bg-accent-danger/5 border-accent-danger/10 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="w-12 h-12 rounded-2xl bg-accent-danger/10 text-accent-danger flex items-center justify-center text-2xl">
+                            <i class="bi bi-exclamation-octagon"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold tracking-tight">Acción Irreversible</h4>
+                            <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                                Elimina permanentemente todos los registros operacionales (Préstamos, Pagos, Gastos) manteniendo solo usuarios.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="pt-6">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#modalCleanDB" class="w-full py-3 px-4 rounded-xl bg-accent-danger/10 text-accent-danger text-[10px] font-bold uppercase tracking-widest border border-accent-danger/20 hover:bg-accent-danger hover:text-white transition-all flex items-center justify-center gap-2">
+                            <i class="bi bi-trash-fill"></i>
+                            Limpiar Historial Operativo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Danger Modal -->
+        <div class="modal fade" id="modalCleanDB" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark-800 border-accent-danger/20 shadow-2xl rounded-3xl overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3 text-accent-danger">
+                            <div class="w-10 h-10 rounded-xl bg-accent-danger/10 flex items-center justify-center text-xl">
+                                <i class="bi bi-shield-slash"></i>
+                            </div>
+                            <h5 class="text-lg font-bold text-white tracking-tight">Confirmación Crítica</h5>
+                        </div>
+                    </div>
+                    <form action="/config/limpiar-bd" method="POST">
+                        <div class="p-8 space-y-6">
+                            <div class="p-4 rounded-xl bg-accent-danger/10 border border-accent-danger/20">
+                                <p class="text-xs text-slate-300 leading-relaxed font-medium">
+                                    <strong class="text-accent-danger">ADVERTENCIA:</strong> Esta acción purgará todas las tablas financieras. Los datos no podrán ser recuperados a menos que tenga un respaldo previo.
+                                </p>
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Autenticación de Administrador *</label>
+                                <input type="password" name="password_admin" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-danger transition-all" required placeholder="Confirme su contraseña actual">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Desafío de Seguridad *</label>
+                                <p class="text-[10px] text-slate-600 italic">¿Cómo se llama el gato del administrador?</p>
+                                <input type="text" name="seguridad_gato" class="w-full px-4 py-3 bg-dark-900 border border-accent-danger/50 rounded-xl text-sm text-white focus:border-accent-danger transition-all" required placeholder="Respuesta de validación">
+                            </div>
+                        </div>
+                        <div class="p-6 bg-dark-900/50 flex gap-4">
+                            <button type="submit" class="flex-1 py-4 rounded-xl bg-accent-danger text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-accent-danger/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                Ejecutar Limpieza Total
+                            </button>
+                            <button type="button" class="flex-1 py-4 rounded-xl bg-white/5 text-slate-400 font-bold text-xs uppercase tracking-widest border border-white/5 hover:text-white transition-all" data-bs-dismiss="modal">
+                                Abortar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

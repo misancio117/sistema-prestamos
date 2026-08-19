@@ -1,0 +1,75 @@
+{
+  "name": "sistema-prestamos",
+  "version": "1.0.0",
+  "description": "Sistema de Gestión de Préstamos - MISACORP",
+  "main": "main.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "electron": "electron .",
+    "build": "electron-builder build --win"
+  },
+  "build": {
+    "appId": "com.misacorp.sistema-prestamos",
+    "productName": "Sistema Prestamos MISACORP",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Sistema Prestamos MISACORP"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/electron/**",
+      "!node_modules/electron-builder/**",
+      "!node_modules/nodemon/**",
+      "!dist/**",
+      "!*.md",
+      "!.env",
+      "!.env.example",
+      "!.gitignore",
+      "!database/database.db",
+      "!database/database.db-shm",
+      "!database/database.db-wal"
+    ],
+    "extraResources": [
+      {
+        "from": "database/seed.db",
+        "to": "database/seed.db"
+      }
+    ]
+  },
+  "keywords": [],
+  "author": "MISACORP",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.8.0",
+    "body-parser": "^2.2.1",
+    "connect-flash": "^0.1.1",
+    "decimal.js": "^10.6.0",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.11",
+    "pdfkit": "^0.17.2"
+  },
+  "devDependencies": {
+    "electron": "^41.1.0",
+    "electron-builder": "^24.13.3",
+    "nodemon": "^3.1.11"
+  }
+}

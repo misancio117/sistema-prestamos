@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <a href="/prestamos" class="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    <i class="bi bi-arrow-left text-lg"></i>
+                </a>
+                <h1 class="text-lg font-bold text-white tracking-tight">Gestión de Mora</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-danger/10 text-accent-danger text-[10px] font-bold uppercase tracking-wider border border-accent-danger/20">Alertas de Cartera</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 text-slate-400 text-sm font-bold border border-white/5 hover:bg-white/10 hover:text-white transition-all">
+                    <i class="bi bi-printer"></i>
+                    <span>Imprimir Reporte</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-6">
+            <% if (vencidos.length > 0) { %>
+                <!-- Warning Header -->
+                <div class="p-6 rounded-2xl bg-accent-danger/10 border-2 border-accent-danger/20 flex items-center gap-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform duration-500">
+                        <i class="bi bi-exclamation-octagon text-8xl text-accent-danger"></i>
+                    </div>
+                    <div class="w-16 h-16 rounded-2xl bg-accent-danger/20 text-accent-danger flex items-center justify-center text-3xl">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-white uppercase tracking-tight">Acción Requerida: Cartera en Mora</h2>
+                        <p class="text-sm text-slate-400 font-medium">Se han identificado <span class="text-accent-danger font-bold"><%= vencidos.length %></span> registros que excedieron el plazo de amortización establecido.</p>
+                    </div>
+                </div>
+
+                <!-- Overdue Table -->
+                <div class="card overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-6">ID Expediente</th>
+                                    <th>Titular / Cliente</th>
+                                    <th>Comunicación</th>
+                                    <th>Deuda Exigible</th>
+                                    <th>Vencimiento Original</th>
+                                    <th>Días de Retraso</th>
+                                    <th class="text-end pe-6">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% vencidos.forEach(p => { 
+                                    const fechaFin = new Date(p.fecha_fin);
+                                    const hoy = new Date();
+                                    const diffTime = Math.abs(hoy - fechaFin);
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                %>
+                                    <tr class="group border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                                        <td class="ps-6">
+                                            <span class="text-xs font-mono font-bold text-accent-danger">#PR-<%= p.id.toString().padStart(4, '0') %></span>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-dark-700 text-slate-400 flex items-center justify-center font-bold text-xs uppercase">
+                                                    <%= p.nombre.charAt(0) %>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-white"><%= p.nombre %> <%= p.apellido %></div>
+                                                    <div class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">DNI: <%= p.dni %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <% if(p.telefono) { %>
+                                                <a href="https://wa.me/<%= p.telefono %>" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent-success/10 text-accent-success text-xs font-bold border border-accent-success/20 hover:bg-accent-success hover:text-white transition-all">
+                                                    <i class="bi bi-whatsapp"></i>
+                                                    <span>Enviar Aviso</span>
+                                                </a>
+                                            <% } else { %>
+                                                <span class="text-[10px] text-slate-600 font-bold uppercase italic">Sin Teléfono</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <div class="text-sm font-black text-white">
+                                                <%= empresa.moneda %> <%= parseFloat(p.monto_total).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                                            </div>
+                                        </td>
+                                        <td class="text-sm text-slate-500"><%= fechaFin.toLocaleDateString() %></td>
+                                        <td>
+                                            <span class="px-2 py-1 rounded-md bg-accent-warning/10 text-accent-warning text-[10px] font-bold uppercase border border-accent-warning/20 flex items-center gap-1 w-fit">
+                                                <i class="bi bi-clock-history"></i> +<%= diffDays %> días
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-6">
+                                            <a href="/pagos/registrar/<%= p.id %>" class="px-4 py-2 rounded-xl bg-accent-info text-white text-xs font-bold shadow-lg shadow-accent-info/20 hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2">
+                                                <i class="bi bi-cash-coin"></i>
+                                                Gestionar Pago
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <% } else { %>
+                <!-- Empty State (Clean Portfolio) -->
+                <div class="flex flex-col items-center justify-center py-24 text-center">
+                    <div class="relative mb-8">
+                        <div class="w-32 h-32 rounded-full bg-accent-success/10 flex items-center justify-center text-6xl text-accent-success animate-pulse">
+                            <i class="bi bi-shield-fill-check"></i>
+                        </div>
+                        <div class="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-accent-success text-white flex items-center justify-center text-xl shadow-lg">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-2xl font-black text-white uppercase tracking-tight mb-2">Cartera Saludable</h3>
+                    <p class="text-slate-500 max-w-md mx-auto">No se han detectado préstamos en mora. Todos los expedientes se encuentran vigentes o liquidados satisfactoriamente.</p>
+                    <a href="/prestamos" class="mt-8 px-8 py-3 rounded-2xl bg-white/5 text-white text-sm font-bold border border-white/10 hover:bg-white/10 transition-all">
+                        Volver al Panel General
+                    </a>
+                </div>
+            <% } %>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

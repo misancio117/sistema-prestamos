@@ -1,0 +1,366 @@
+<%
+  /* Detect current path for active link highlighting */
+  const _path = typeof locals !== 'undefined' && locals.currentPath
+      ? locals.currentPath
+      : (typeof req !== 'undefined' ? req.path : '/');
+
+  function isActive(href) {
+    if (href === '/') return _path === '/';
+    return _path === href || _path.startsWith(href + '/') || _path.startsWith(href + '?');
+  }
+%>
+
+<aside id="sidebar-nav" class="fixed left-0 top-0 h-screen flex flex-col" style="width:260px; z-index:1040;">
+
+  <!-- ── Brand ──────────────────────────────────────────────── -->
+  <a href="/" class="flex items-center gap-3 px-5 py-4 border-b" style="border-color:rgba(255,255,255,0.06); min-height:64px; text-decoration:none;">
+    <% if (typeof empresa !== 'undefined' && empresa.logo) { %>
+      <img src="/uploads/<%= empresa.logo %>" alt="Logo"
+           class="w-9 h-9 rounded-xl object-contain bg-white/5 p-0.5 flex-shrink-0">
+    <% } else { %>
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
+           style="background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%); box-shadow:0 4px 14px rgba(59,130,246,0.35);">
+        <i class="bi bi-bank2 text-white" style="font-size:17px;"></i>
+      </div>
+    <% } %>
+    <div class="flex flex-col truncate leading-tight">
+      <span class="font-bold text-white truncate" style="font-size:13.5px; letter-spacing:-0.01em;">
+        <%= (typeof empresa !== 'undefined' && empresa.nombre_empresa) ? empresa.nombre_empresa : 'MISACORP' %>
+      </span>
+      <span class="font-semibold uppercase tracking-[0.1em]" style="font-size:9px; color:#475569;">
+        Sistema Financiero Pro
+      </span>
+    </div>
+  </a>
+
+  <!-- ── Navigation ─────────────────────────────────────────── -->
+  <nav class="flex-1 py-3 overflow-y-auto scrollbar-hide" style="padding:0.75rem 0;">
+
+    <!-- General -->
+    <div class="px-4 mb-1">
+      <span class="block px-2 mb-2 font-bold uppercase tracking-[0.1em]"
+            style="font-size:9.5px; color:#334155;">General</span>
+      <a href="/"
+         class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/') ? 'active' : '' %>"
+         style="font-size:13px;">
+        <i class="bi bi-grid-1x2-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+           style="font-size:16px; width:20px; text-align:center;"></i>
+        <span>Panel Principal</span>
+      </a>
+    </div>
+
+    <!-- Divider -->
+    <div class="mx-4 my-3" style="height:1px; background:rgba(255,255,255,0.04);"></div>
+
+    <!-- Operaciones -->
+    <div class="px-4 mb-1">
+      <span class="block px-2 mb-2 font-bold uppercase tracking-[0.1em]"
+            style="font-size:9.5px; color:#334155;">Operaciones</span>
+      <div class="space-y-0.5">
+
+        <% if (typeof alertasVencidos !== 'undefined' && alertasVencidos > 0) { %>
+          <a href="/prestamos/vencidos"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold transition-all duration-200 group border mb-2"
+             style="font-size:13px; background:rgba(239,68,68,0.1); color:#f87171; border-color:rgba(239,68,68,0.2);">
+            <i class="bi bi-bell-fill flex-shrink-0" style="font-size:15px; width:20px; text-align:center; animation:pulse 1.5s infinite;"></i>
+            <span class="flex-1">Cobranzas</span>
+            <span class="flex items-center justify-center text-white font-black rounded-full px-1.5"
+                  style="font-size:10px; min-width:20px; background:#ef4444; line-height:20px;">
+              <%= alertasVencidos %>
+            </span>
+          </a>
+        <% } %>
+
+        <a href="/clientes"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/clientes') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-people-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+          <span>Clientes</span>
+        </a>
+
+        <a href="/prestamos"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/prestamos') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-cash-stack flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+          <span>Préstamos</span>
+        </a>
+
+        <a href="/prestamos/finalizados"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/prestamos/finalizados') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-journal-check flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+                    <span>Cerrados</span>
+        </a>
+
+        <a href="/simulador"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/simulador') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-calculator flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+          <span>Calculadora</span>
+        </a>
+
+        <a href="/gastos"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/gastos') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-graph-down-arrow flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+          <span>Gastos</span>
+        </a>
+
+        <a href="/reportes/panel"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/reportes') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-bar-chart-line-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+          <span>Reportes</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="mx-4 my-3" style="height:1px; background:rgba(255,255,255,0.04);"></div>
+
+    <!-- Servicios -->
+    <div class="px-4 mb-1">
+      <span class="block px-2 mb-2 font-bold uppercase tracking-[0.1em]"
+            style="font-size:9.5px; color:#334155;">Servicios</span>
+      <div class="space-y-0.5">
+
+        <a href="/empenos"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/empenos') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-gem flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+          <span>Empeños</span>
+        </a>
+
+        <a href="/ahorros"
+           class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group <%= isActive('/ahorros') ? 'active' : '' %>"
+           style="font-size:13px;">
+          <i class="bi bi-piggy-bank-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+             style="font-size:16px; width:20px; text-align:center;"></i>
+          <span>Ahorros</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Admin section -->
+    <% if (usuario && usuario.rol === 'admin') { %>
+      <div class="mx-4 my-3" style="height:1px; background:rgba(245,158,11,0.12);"></div>
+      <div class="px-4 mb-1">
+        <span class="block px-2 mb-2 font-bold uppercase tracking-[0.1em]"
+              style="font-size:9.5px; color:rgba(245,158,11,0.5);">Administración</span>
+        <div class="space-y-0.5">
+
+          <a href="/caja"
+             class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group sidebar-admin <%= isActive('/caja') ? 'active-admin' : '' %>"
+             style="font-size:13px;">
+            <i class="bi bi-safe-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+               style="font-size:16px; width:20px; text-align:center;"></i>
+            <span>Corte de Caja</span>
+          </a>
+
+          <a href="/bitacora"
+             class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group sidebar-admin <%= isActive('/bitacora') ? 'active-admin' : '' %>"
+             style="font-size:13px;">
+            <i class="bi bi-eye-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+               style="font-size:16px; width:20px; text-align:center;"></i>
+            <span>Auditoría</span>
+          </a>
+
+          <a href="/usuarios"
+             class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group sidebar-admin <%= isActive('/usuarios') ? 'active-admin' : '' %>"
+             style="font-size:13px;">
+            <i class="bi bi-shield-lock-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+               style="font-size:16px; width:20px; text-align:center;"></i>
+            <span>Usuarios</span>
+          </a>
+
+          <a href="/config"
+             class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group sidebar-admin <%= isActive('/config') ? 'active-admin' : '' %>"
+             style="font-size:13px;">
+            <i class="bi bi-gear-fill flex-shrink-0 transition-transform duration-200 group-hover:scale-110"
+               style="font-size:16px; width:20px; text-align:center;"></i>
+            <span>Configuración</span>
+          </a>
+
+        </div>
+      </div>
+    <% } %>
+
+  </nav>
+
+  <!-- ── User Profile ────────────────────────────────────────── -->
+  <div class="relative px-4 pb-4 pt-3 border-t" style="border-color:rgba(255,255,255,0.05);">
+    <button
+      type="button"
+      onclick="toggleUserMenu()"
+      class="w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 group"
+      style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);"
+      onmouseenter="this.style.background='rgba(255,255,255,0.06)'"
+      onmouseleave="this.style.background='rgba(255,255,255,0.03)'"
+    >
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold flex-shrink-0 text-white"
+           style="background:linear-gradient(135deg,rgba(16,185,129,0.25) 0%,rgba(16,185,129,0.1) 100%); border:1px solid rgba(16,185,129,0.2); font-size:14px; color:#34d399;">
+        <%= usuario ? usuario.nombre.charAt(0).toUpperCase() : 'U' %>
+      </div>
+      <div class="flex-1 text-left truncate leading-tight">
+        <div class="font-semibold text-white truncate" style="font-size:13px;">
+          <%= usuario ? usuario.nombre.split(' ')[0] : 'Usuario' %>
+        </div>
+        <div class="capitalize" style="font-size:10.5px; color:#475569;">
+          <%= usuario ? usuario.rol : 'Perfil' %>
+        </div>
+      </div>
+      <i class="bi bi-chevron-up flex-shrink-0" style="font-size:11px; color:#475569;"></i>
+    </button>
+
+    <!-- Dropdown menu -->
+    <div id="user-menu"
+         class="hidden absolute left-4 right-4 bottom-full mb-2 rounded-xl overflow-hidden shadow-2xl"
+         style="background:#111827; border:1px solid rgba(255,255,255,0.1); z-index:100;">
+      <a href="/perfil"
+         class="flex items-center gap-3 px-4 py-3 transition-colors duration-150"
+         style="color:#94a3b8; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.05);"
+         onmouseenter="this.style.background='rgba(255,255,255,0.04)'; this.style.color='#f1f5f9'"
+         onmouseleave="this.style.background=''; this.style.color='#94a3b8'">
+        <i class="bi bi-person-circle" style="font-size:15px;"></i>
+        <span class="font-medium">Mi Perfil</span>
+      </a>
+      <a href="/auth/logout"
+         class="flex items-center gap-3 px-4 py-3 transition-colors duration-150"
+         style="color:#f87171; font-size:13px;"
+         onmouseenter="this.style.background='rgba(239,68,68,0.08)'"
+         onmouseleave="this.style.background=''">
+        <i class="bi bi-box-arrow-right" style="font-size:15px;"></i>
+        <span class="font-medium">Cerrar Sesión</span>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<style>
+  /* Sidebar links base */
+  .sidebar-link {
+    color: #475569;
+    position: relative;
+    overflow: hidden;
+  }
+  .sidebar-link i { color: #374155; }
+  .sidebar-link:hover {
+    background: rgba(255,255,255,0.04) !important;
+    color: #e2e8f0 !important;
+    text-decoration: none;
+  }
+  .sidebar-link:hover i { color: #94a3b8; }
+
+  /* Active state */
+  .sidebar-link.active {
+    background: linear-gradient(90deg, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.06) 100%) !important;
+    color: #fff !important;
+    border-left: 3px solid #3b82f6 !important;
+    padding-left: calc(0.75rem - 1px) !important;
+  }
+  .sidebar-link.active i { color: #93c5fd !important; }
+
+  /* Admin links */
+  .sidebar-admin { color: rgba(245,158,11,0.5) !important; }
+  .sidebar-admin i { color: rgba(245,158,11,0.35) !important; }
+  .sidebar-admin:hover {
+    background: rgba(245,158,11,0.06) !important;
+    color: #fbbf24 !important;
+  }
+  .sidebar-admin:hover i { color: #fbbf24 !important; }
+  .sidebar-admin.active-admin,
+  .active-admin {
+    background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.04) 100%) !important;
+    color: #fbbf24 !important;
+    border-left: 3px solid #f59e0b !important;
+    padding-left: calc(0.75rem - 1px) !important;
+  }
+  .active-admin i { color: #fbbf24 !important; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+</style>
+
+<script>
+  /* ── User dropdown ─────────────────────────────────────── */
+  function toggleUserMenu() {
+    const menu = document.getElementById('user-menu');
+    if (menu) menu.classList.toggle('hidden');
+  }
+
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('user-menu');
+    const trigger = menu && menu.previousElementSibling;
+    if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && trigger && !trigger.contains(e.target)) {
+      menu.classList.add('hidden');
+    }
+  });
+
+  /* ── Mobile: inject overlay + hamburger button ─────────── */
+  (function() {
+    // Overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'sidebar-overlay';
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    // Hamburger button (visible only on mobile via CSS)
+    const ham = document.createElement('button');
+    ham.id = 'sidebar-toggle';
+    ham.setAttribute('aria-label', 'Abrir menú');
+    ham.style.cssText = [
+      'display:none',
+      'position:fixed',
+      'bottom:1.25rem',
+      'right:1.25rem',
+      'z-index:1035',
+      'width:48px',
+      'height:48px',
+      'border-radius:14px',
+      'border:1px solid rgba(255,255,255,0.1)',
+      'background:rgba(17,24,39,0.95)',
+      'backdrop-filter:blur(8px)',
+      'color:#94a3b8',
+      'font-size:20px',
+      'cursor:pointer',
+      'align-items:center',
+      'justify-content:center',
+      'box-shadow:0 4px 20px rgba(0,0,0,0.5)',
+      'transition:all 0.2s ease',
+    ].join(';');
+    ham.innerHTML = '<i class="bi bi-list"></i>';
+    document.body.appendChild(ham);
+
+    // Show on mobile
+    const mq = window.matchMedia('(max-width:768px)');
+    function updateHam(e) {
+      ham.style.display = e.matches ? 'flex' : 'none';
+    }
+    mq.addEventListener('change', updateHam);
+    updateHam(mq);
+
+    // Events
+    const sidebar = document.getElementById('sidebar-nav');
+    ham.addEventListener('click', function() {
+      sidebar && sidebar.classList.add('active');
+      overlay.classList.add('active');
+      ham.innerHTML = '<i class="bi bi-x-lg"></i>';
+    });
+    overlay.addEventListener('click', function() {
+      sidebar && sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      ham.innerHTML = '<i class="bi bi-list"></i>';
+    });
+  })();
+</script>

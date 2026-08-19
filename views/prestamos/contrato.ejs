@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Contrato de Préstamo N° <%= prestamo.id %></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            line-height: 1.35;
+            color: #1e1e1e;
+            background: #e2e8f0;
+            padding: 20px;
+        }
+        .contract-page {
+            width: 215.9mm;
+            min-height: 279.4mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 14mm 16mm 8mm;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== HEADER ===== */
+        .contract-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 5px;
+            border-bottom: 3px double #1e1e1e;
+            margin-bottom: 6px;
+            position: relative;
+        }
+        .contract-header::after {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #c9a84c;
+        }
+        .contract-header .logo-img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+            border-radius: 6px;
+            border: 1px solid #e0d5c0;
+            padding: 3px;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .contract-header h1 {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 15pt;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+        .contract-header .sub-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 9pt;
+            font-weight: 600;
+            font-style: italic;
+            color: #c9a84c;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .header-right {
+            margin-left: auto;
+            text-align: right;
+            font-size: 8.5pt;
+            line-height: 1.3;
+            color: #555;
+        }
+        .header-right strong { color: #1e1e1e; }
+
+        /* ===== BODY ===== */
+        .contract-body {
+            flex: 1;
+        }
+        .contract-body p {
+            text-align: justify;
+            margin-bottom: 6px;
+        }
+
+        .section-title {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11pt;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+            margin-top: 7px;
+            margin-bottom: 4px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #c9a84c;
+        }
+        .clause-title {
+            font-weight: 700;
+            font-size: 11pt;
+        }
+
+        /* ===== TABLE ===== */
+        .summary-table {
+            width: 100%;
+            font-size: 10.5pt;
+            border-collapse: collapse;
+            margin: 5px 0;
+        }
+        .summary-table td {
+            padding: 3px 8px;
+            border: 1px solid #b0b0b0;
+        }
+        .summary-table .sl {
+            font-weight: 600;
+            width: 34%;
+            background: #f5f0e8;
+        }
+        .summary-table .sv {
+            text-align: right;
+            background: #fcfaf7;
+        }
+        .summary-table tr:last-child td {
+            border-bottom: 2px solid #0f172a;
+        }
+
+        /* ===== GUARANTEE ===== */
+        .guarantee-text {
+            font-size: 10.5pt;
+            padding: 4px 8px;
+            margin: 5px 0;
+            border: 1px solid #c9a84c;
+            border-left: 3px solid #c9a84c;
+            background: #fdfbf7;
+        }
+
+        /* ===== WARNING ===== */
+        .warn-text {
+            font-size: 10.5pt;
+            padding: 4px 8px;
+            margin: 5px 0;
+            border: 1px solid #b0b0b0;
+            border-left: 3px solid #8b1a1a;
+            background: #faf8f5;
+        }
+
+        /* ===== SIGNATURES ===== */
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            page-break-inside: avoid;
+        }
+        .sig-box {
+            text-align: center;
+            width: 40%;
+        }
+        .sig-box .sig-line {
+            border-top: 1.5px solid #1e1e1e;
+            margin-bottom: 4px;
+            padding-top: 5px;
+        }
+        .sig-box .sig-name {
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 700;
+            font-size: 10.5pt;
+            letter-spacing: 0.5px;
+        }
+        .sig-box .sig-id { font-size: 9pt; color: #555; }
+
+        /* ===== FOOTER ===== */
+        .contract-footer {
+            margin-top: 6px;
+            padding-top: 3px;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            font-size: 7pt;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* ===== PRINT ===== */
+        @media print {
+            body { background: #fff; padding: 0; }
+            .contract-page { box-shadow: none; border-radius: 0; padding: 14mm 14mm 8mm; }
+            .no-print { display: none !important; }
+        }
+
+        /* ===== TOOLBAR ===== */
+        .print-toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+        }
+        .print-toolbar .toolbar-title { font-size: 13px; font-weight: 700; }
+        .print-toolbar .toolbar-subtitle { font-size: 10px; opacity: 0.6; }
+        .print-toolbar .btn-back, .print-toolbar .btn-print {
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+        }
+        .print-toolbar .btn-back {
+            background: rgba(255,255,255,0.08);
+            color: #cbd5e1;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .print-toolbar .btn-print {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #fff;
+            font-weight: 700;
+        }
+        .print-toolbar .toolbar-actions { display: flex; gap: 8px; }
+        body { padding-top: 60px; }
+        @media print { body { padding-top: 0; } }
+    </style>
+</head>
+<body>
+    <div class="print-toolbar no-print">
+        <div>
+            <div class="toolbar-title">Vista Previa del Contrato</div>
+            <div class="toolbar-subtitle">Revise el documento antes de imprimir</div>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn-back" onclick="history.back()">← Volver</button>
+            <button class="btn-print" onclick="window.print()">Imprimir Contrato</button>
+        </div>
+    </div>
+
+    <div class="contract-page">
+        <div class="contract-header">
+            <% if (empresa && empresa.logo) { %>
+                <img src="/uploads/<%= empresa.logo %>" alt="Logo" class="logo-img">
+            <% } %>
+            <div>
+                <h1>Contrato de Préstamo</h1>
+                <div class="sub-title"><%= (empeno && empeno.nombre_articulo) ? 'Con Garantía Prendaria' : 'Préstamo Personal' %></div>
+            </div>
+            <div class="header-right">
+                <strong>N° <%= String(prestamo.id).padStart(5, '0') %></strong><br>
+                <%= new Date(prestamo.fecha_inicio + 'T12:00:00').toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+            </div>
+        </div>
+
+        <div class="contract-body">
+            <p>Conste por el presente documento privado de Préstamo de Dinero, que se celebra entre las siguientes partes:</p>
+
+            <div class="section-title">SECCIÓN I — DE LAS PARTES</div>
+
+            <p><span class="clause-title">1.1. EL ACREEDOR:</span> La casa de empeño <strong>"<%= (empresa.nombre_empresa || 'EMPRESA').toUpperCase() %>"</strong>, ubicada en <%= empresa.direccion || 'su oficina principal' %>.</p>
+
+            <p><span class="clause-title">1.2. EL DEUDOR:</span> El/La señor(a) <strong><%= cliente.nombre %> <%= cliente.apellido %></strong>, mayor de edad, identificado(a) con C.I. N° <strong><%= cliente.dni %></strong>, con número de contacto <strong><%= cliente.telefono || 'No registrado' %></strong>.</p>
+
+            <table class="summary-table">
+                <tr><td class="sl">Capital Prestado</td><td class="sv"><%= empresa.moneda || 'Bs.' %> <%= parseFloat(prestamo.monto_prestado).toFixed(2) %></td></tr>
+                <tr><td class="sl">Tasa de Interés</td><td class="sv"><%= parseFloat(prestamo.tasa_interes).toFixed(2) %>%</td></tr>
+                <tr><td class="sl">Total a Devolver</td><td class="sv"><strong><%= empresa.moneda || 'Bs.' %> <%= parseFloat(prestamo.monto_total).toFixed(2) %></strong></td></tr>
+                <tr><td class="sl">Cuotas</td><td class="sv"><%= prestamo.cuotas %> cuota(s) — <%= prestamo.frecuencia.toUpperCase() %></td></tr>
+                <tr><td class="sl">Cuota Estimada</td><td class="sv"><%= empresa.moneda || 'Bs.' %> <%= (prestamo.monto_total / prestamo.cuotas).toFixed(2) %></td></tr>
+                <tr><td class="sl">Plazo Inicial</td><td class="sv"><%= (locals.fechaPrimerPago ? new Date(fechaPrimerPago) : new Date(prestamo.fecha_inicio)).toLocaleDateString() %></td></tr>
+                <% if(locals.fechaUltimaPago || prestamo.fecha_fin) { %>
+                <tr><td class="sl">Plazo Final</td><td class="sv"><%= (locals.fechaUltimaPago ? new Date(fechaUltimaPago) : new Date(prestamo.fecha_fin)).toLocaleDateString() %></td></tr>
+                <% } %>
+            </table>
+
+            <% if (empeno && empeno.nombre_articulo) { %>
+            <div class="guarantee-text"><strong>Garantía Prendaria:</strong> <%= empeno.nombre_articulo %><% if(empeno.descripcion) { %> — <%= empeno.descripcion %><% } %><% if(empeno.valor_tasacion) { %> (Tasación: <%= empresa.moneda || 'Bs.' %> <%= parseFloat(empeno.valor_tasacion).toFixed(2) %>)<% } %></div>
+            <% } %>
+
+            <div class="section-title">SECCIÓN II — CLÁUSULAS</div>
+
+            <p><span class="clause-title">PRIMERA (DEL PRÉSTAMO):</span> EL ACREEDOR otorga a EL DEUDOR la suma líquida de <strong><%= empresa.moneda || 'Bs.' %> <%= parseFloat(prestamo.monto_prestado).toFixed(2) %></strong> en calidad de préstamo personal<% if(empeno && empeno.nombre_articulo) { %>, respaldado por la garantía prendaria descrita<% } %>.</p>
+
+            <p><span class="clause-title">SEGUNDA (DE LA DEVOLUCIÓN):</span> EL DEUDOR se compromete a devolver la suma total de <strong><%= empresa.moneda || 'Bs.' %> <%= parseFloat(prestamo.monto_total).toFixed(2) %></strong>, que incluye el capital más los intereses devengados al <strong><%= parseFloat(prestamo.tasa_interes).toFixed(2) %>%</strong>.</p>
+
+            <p><span class="clause-title">TERCERA (FORMA DE PAGO):</span> El pago será fraccionado en <strong><%= prestamo.cuotas %></strong> cuota(s) con periodicidad <strong><%= prestamo.frecuencia.toUpperCase() %></strong>, según el cronograma adjunto.</p>
+
+            <div class="warn-text"><span class="clause-title">CUARTA (INCUMPLIMIENTO):</span> En caso de que EL DEUDOR incumpla tres (3) cuotas consecutivas, o venza el Plazo Final sin haber saldado la deuda, EL ACREEDOR queda facultado para tomar acciones de cobranza<% if(empeno && empeno.nombre_articulo) { %> y podrá disponer del bien prendado (<strong><%= empeno.nombre_articulo %></strong>) para su venta o remate, recuperando el capital e intereses<% } %>.</div>
+
+            <p><span class="clause-title">QUINTA (CONFORMIDAD):</span> Ambas partes declaran su total conformidad con las cláusulas expresadas, suscribiéndolo en señal de plena aceptación.</p>
+
+            <div class="signatures">
+                <div class="sig-box">
+                    <div class="sig-line"></div>
+                    <div class="sig-name">EL ACREEDOR</div>
+                    <div class="sig-id"><%= (empresa.nombre_empresa || 'EMPRESA').toUpperCase() %></div>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-line"></div>
+                    <div class="sig-name">EL DEUDOR</div>
+                    <div class="sig-id"><%= cliente.nombre %> <%= cliente.apellido %></div>
+                    <div class="sig-id">C.I.: <%= cliente.dni %></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contract-footer">
+            Documento generado electrónicamente — <%= (empresa.nombre_empresa || 'SISTEMA').toUpperCase() %> • <%= new Date().toLocaleDateString('es-ES') %>
+        </div>
+    </div>
+</body>
+</html>

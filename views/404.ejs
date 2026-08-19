@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recurso no encontrado | 404 Error</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .bg-dark-900 { background-color: #0f172a; }
+        .text-accent-primary { color: #3b82f6; }
+        .bg-accent-primary { background-color: #3b82f6; }
+        .glow { box-shadow: 0 0 50px -12px rgba(59, 130, 246, 0.5); }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-200 h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-accent-primary/10 blur-[150px] rounded-full"></div>
+        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/5 blur-[150px] rounded-full"></div>
+    </div>
+
+    <div class="relative z-10 max-w-lg w-full px-8 text-center space-y-8">
+        <!-- Error Visual -->
+        <div class="relative inline-block group">
+            <h1 class="text-[12rem] font-black text-white/5 leading-none select-none tracking-tighter">404</h1>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-32 h-32 rounded-3xl bg-dark-900 border border-white/10 flex items-center justify-center text-6xl text-accent-primary glow animate-bounce">
+                    <i class="bi bi-shield-slash-fill"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Content -->
+        <div class="space-y-4">
+            <h2 class="text-3xl font-bold text-white tracking-tight">Recurso Fuera de Alcance</h2>
+            <p class="text-slate-500 text-sm font-medium leading-relaxed max-w-sm mx-auto uppercase tracking-widest">
+                La ruta solicitada no se encuentra en nuestros registros o ha sido reubicada por seguridad.
+            </p>
+        </div>
+
+        <!-- Action -->
+        <div class="pt-4">
+            <a href="/" class="inline-flex items-center gap-3 px-10 py-4 rounded-2xl bg-accent-primary text-white font-bold text-xs uppercase tracking-[0.2em] shadow-2xl shadow-accent-primary/20 hover:scale-105 active:scale-95 transition-all group">
+                <i class="bi bi-house-door-fill group-hover:-translate-y-1 transition-transform"></i>
+                Regresar a la Central
+            </a>
+        </div>
+
+        <!-- Status footer -->
+        <div class="pt-12 flex items-center justify-center gap-4">
+            <div class="h-px w-8 bg-white/5"></div>
+            <span class="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Estado del Sistema: Protegido</span>
+            <div class="h-px w-8 bg-white/5"></div>
+        </div>
+    </div>
+
+    <!-- Micro-animation layer -->
+    <script>
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth - 0.5;
+            const y = e.clientY / window.innerHeight - 0.5;
+            document.querySelector('.glow').style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+        });
+    </script>
+</body>
+</html>

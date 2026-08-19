@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión — Servicios Vedia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #020617;
+            overflow: hidden;
+        }
+
+        /* ========== ANIMATED BACKGROUND ========== */
+        .bg-animated {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: linear-gradient(135deg, #020617 0%, #0f172a 30%, #1e3a5f 60%, #1e40af 100%);
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 8s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, #3b82f6, transparent);
+            top: -100px; left: -100px;
+            animation-duration: 10s;
+        }
+        .orb-2 {
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, #6366f1, transparent);
+            bottom: -80px; right: -80px;
+            animation-duration: 12s;
+            animation-delay: -3s;
+        }
+        .orb-3 {
+            width: 250px; height: 250px;
+            background: radial-gradient(circle, #0ea5e9, transparent);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 14s;
+            animation-delay: -6s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -40px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(15px, 35px) scale(1.02); }
+        }
+
+        /* Particle grid */
+        .particles {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, rgba(59,130,246,0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: drift 20s linear infinite;
+        }
+        @keyframes drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        /* ========== LAYOUT ========== */
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Left branding panel */
+        .brand-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            text-align: center;
+            color: white;
+        }
+        .brand-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 12px;
+            margin-bottom: 24px;
+            animation: logoEntry 1s ease-out;
+        }
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ffffff, #93c5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            animation: slideUp 0.8s ease-out;
+        }
+        .brand-slogan {
+            font-size: 16px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.7);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: slideUp 0.8s ease-out 0.2s both;
+        }
+        .brand-features {
+            margin-top: 50px;
+            animation: slideUp 0.8s ease-out 0.4s both;
+        }
+        .brand-features .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+        .brand-features .feature i {
+            color: #3b82f6;
+            font-size: 18px;
+            width: 24px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes logoEntry {
+            from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+            to { opacity: 1; transform: scale(1) rotate(0); }
+        }
+
+        /* Right form panel */
+        .form-panel {
+            width: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .login-card {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 40px;
+            animation: cardEntry 0.6s ease-out 0.3s both;
+        }
+        @keyframes cardEntry {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .login-card h3 {
+            color: #fff;
+            font-weight: 700;
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        .login-card .subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* Form fields */
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .form-group .input-wrap {
+            position: relative;
+        }
+        .form-group .input-wrap .icon-left {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 18px;
+            transition: color 0.3s;
+            pointer-events: none;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 48px 14px 48px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .form-group input::placeholder { color: #475569; }
+        .form-group input:focus {
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.08);
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+        }
+        .form-group .input-wrap:focus-within .icon-left {
+            color: #3b82f6;
+        }
+
+        /* Toggle password eye button */
+        .btn-toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 6px;
+            color: #64748b;
+            font-size: 18px;
+            transition: color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            line-height: 1;
+        }
+        .btn-toggle-password:hover {
+            color: #3b82f6;
+            transform: translateY(-50%) scale(1.15);
+        }
+        .btn-toggle-password:focus {
+            outline: none;
+            color: #3b82f6;
+        }
+
+        /* Button */
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            color: #fff;
+            background: linear-gradient(135deg, #2563eb, #3b82f6, #60a5fa);
+            background-size: 200% 200%;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: shimmer 3s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.5s;
+        }
+        .btn-login:hover::before { left: 100%; }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59,130,246,0.4);
+        }
+        .btn-login:active { transform: translateY(0); }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Alert */
+        .alert-glass {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 24px;
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-wrapper { flex-direction: column; }
+            .brand-panel { padding: 40px 30px 20px; }
+            .brand-name { font-size: 28px; }
+            .brand-features { display: none; }
+            .form-panel { width: 100%; padding: 20px 30px 40px; }
+            .login-card { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Animated BG -->
+    <div class="bg-animated">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="particles"></div>
+    </div>
+
+    <div class="login-wrapper">
+        <!-- Left Panel: Branding -->
+        <div class="brand-panel">
+            <% if (empresa && empresa.logo) { %>
+                <img src="/uploads/<%= empresa.logo %>" alt="Logo" class="brand-logo">
+            <% } else { %>
+                <div class="brand-logo d-flex align-items-center justify-content-center">
+                    <i class="bi bi-shield-lock-fill" style="font-size:40px; color:#3b82f6;"></i>
+                </div>
+            <% } %>
+            <h1 class="brand-name">Servicios Vedia</h1>
+            <p class="brand-slogan">Tu confianza, nuestra garantía</p>
+
+            <div class="brand-features">
+                <div class="feature">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Sistema seguro con cifrado de contraseñas</span>
+                </div>
+                <div class="feature">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Control financiero en tiempo real</span>
+                </div>
+                <div class="feature">
+                    <i class="bi bi-file-earmark-pdf"></i>
+                    <span>Documentos y reportes profesionales</span>
+                </div>
+                <div class="feature">
+                    <i class="bi bi-safe2"></i>
+                    <span>Bóveda de capital con trazabilidad total</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Login Form -->
+        <div class="form-panel">
+            <div class="login-card">
+                <h3>Bienvenido</h3>
+                <p class="subtitle">Inicie sesión para acceder al panel</p>
+
+                <% if(mensajeError && mensajeError.length > 0) { %>
+                    <div class="alert-glass">
+                        <i class="bi bi-exclamation-triangle me-1"></i> <%= mensajeError %>
+                    </div>
+                <% } %>
+
+                <form action="/auth/login" method="POST">
+                    <div class="form-group">
+                        <label>Correo Electrónico</label>
+                        <div class="input-wrap">
+                            <input type="email" name="email" placeholder="usuario@empresa.com" required>
+                            <i class="bi bi-envelope"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <div class="input-wrap">
+                            <input type="password" id="passwordInput" name="password" placeholder="••••••••" required>
+                            <i class="bi bi-lock icon-left"></i>
+                            <button type="button" class="btn-toggle-password" id="togglePassword" title="Mostrar/ocultar contraseña" aria-label="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Ingresar al Sistema
+                    </button>
+                </form>
+
+                <div class="footer-text">
+                    &copy; 2025 Servicios Vedia — Todos los derechos reservados
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('passwordInput');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        toggleBtn.addEventListener('click', function () {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            eyeIcon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    </script>
+
+</body>
+</html>

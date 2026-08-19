@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante #<%= String(pago.pago_id).padStart(6, '0') %></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: #fff;
+            color: #000;
+            padding: 0;
+            line-height: 1.4;
+            font-size: 12px;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .receipt {
+            width: 48mm;
+            margin: 0 auto;
+            padding: 3mm 2mm;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2mm;
+        }
+
+        .logo {
+            max-width: 25mm;
+            max-height: 8mm;
+            display: block;
+            margin: 0 auto 1mm auto;
+        }
+
+        .company-name {
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1px;
+        }
+
+        .company-subtitle {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2mm 0;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 1mm;
+        }
+
+        .receipt-id {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 900;
+            margin-bottom: 1mm;
+        }
+
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 1px;
+        }
+
+        .info-line .label {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+
+        .info-line .value {
+            font-weight: 400;
+        }
+
+        .info-block {
+            margin-bottom: 1mm;
+        }
+
+        .info-block .label {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+
+        .info-block .value {
+            font-size: 11px;
+        }
+
+        .amount-box {
+            text-align: center;
+            margin: 2mm 0;
+            padding: 2mm 0;
+        }
+
+        .amount-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .amount-value {
+            font-size: 15px;
+            font-weight: 900;
+            margin-top: 1px;
+        }
+
+        .status-section {
+            margin: 2mm 0;
+        }
+
+        .status-pending {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-paid {
+            text-align: center;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 2mm 0;
+        }
+
+        .next-payment {
+            text-align: center;
+            font-size: 9px;
+            margin-top: 1mm;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 9px;
+            margin-top: 2mm;
+        }
+
+        @media print {
+            @page {
+                size: 58mm auto;
+                margin: 2mm 1mm;
+            }
+
+            body {
+                background: white;
+            }
+
+            .receipt {
+                width: 48mm;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="receipt">
+        <div class="header">
+            <% if (empresa && empresa.logo) { %>
+                <img src="/uploads/<%= empresa.logo %>" alt="Logo" class="logo">
+            <% } %>
+            <div class="company-name"><%= empresa.nombre || 'Empresa' %></div>
+            <div class="company-subtitle">Transacción Financiera Oficial</div>
+        </div>
+
+        <div class="divider">------------------------------</div>
+
+        <div class="title">Comprobante de Pago</div>
+        <div class="receipt-id">#<%= String(pago.pago_id).padStart(6, '0') %></div>
+
+        <div class="divider">------------------------------</div>
+
+        <div class="info-line">
+            <span class="label">Fecha:</span>
+            <span class="value"><%= new Date(pago.fecha_pago).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }) %></span>
+        </div>
+        <div class="info-line">
+            <span class="label">Crédito:</span>
+            <span class="value">PR-<%= String(pago.prestamo_id).padStart(4, '0') %></span>
+        </div>
+
+        <div class="divider">------------------------------</div>
+
+        <div class="info-block">
+            <div class="label">Cliente:</div>
+            <div class="value"><%= pago.nombre %> <%= pago.apellido %></div>
+        </div>
+        <div class="info-block">
+            <div class="label">DNI:</div>
+            <div class="value"><%= pago.dni %></div>
+        </div>
+        <div class="info-block">
+            <div class="label">Concepto:</div>
+            <div class="value"><%= pago.observaciones || 'Abono programado de cuota en efectivo' %></div>
+        </div>
+
+        <div class="divider">------------------------------</div>
+
+        <div class="amount-box">
+            <div class="amount-label">Monto Recibido</div>
+            <div class="amount-value"><%= empresa.moneda %> <%= parseFloat(pago.monto_pagado).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %></div>
+        </div>
+
+        <div class="divider">------------------------------</div>
+
+        <div class="status-section">
+            <% if(saldoActual > 0) { %>
+                <div class="status-pending">
+                    Saldo Pendiente: <%= empresa.moneda %> <%= parseFloat(saldoActual).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                </div>
+                <div class="next-payment">
+                    Próx. pago: <strong><%= proximaFecha ? proximaFecha.toLocaleDateString() : 'N/D' %></strong>
+                </div>
+            <% } else { %>
+                <div class="status-paid">✓ Obligación Cancelada</div>
+            <% } %>
+        </div>
+
+        <div class="divider">------------------------------</div>
+
+        <div class="footer">
+            <div>Gracias por su pago</div>
+            <div>Generado: <%= new Date().toLocaleDateString('es-ES') %></div>
+        </div>
+
+        <div class="divider">------------------------------</div>
+
+        <br><br><br><br><br>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <a href="/prestamos" class="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    <i class="bi bi-arrow-left text-lg"></i>
+                </a>
+                <h1 class="text-lg font-bold text-white tracking-tight">Historial de Préstamos Cerrados</h1>
+                <span class="px-2 py-0.5 rounded-md bg-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-wider border border-white/20">Historial</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-slate-500 font-bold uppercase tracking-widest"><%= prestamos.length %> registro(s)</span>
+            </div>
+        </header>
+
+        <div class="p-8">
+            <% if (prestamos.length > 0) { %>
+                <div class="card overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-6">ID</th>
+                                    <th>Cliente</th>
+                                    <th>Capital</th>
+                                    <th>Total Adeudado</th>
+                                    <th>Estado / Motivo</th>
+                                    <th>Garantía</th>
+                                    <th class="text-end pe-6">Cerrado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% prestamos.forEach(p => { %>
+                                    <tr class="group">
+                                        <td class="ps-6 font-mono text-xs text-slate-400 font-bold">#PR-<%= p.id.toString().padStart(4, '0') %></td>
+                                        <td>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-dark-700 text-slate-400 flex items-center justify-center font-bold text-xs">
+                                                    <%= p.nombre.charAt(0) %>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-white"><%= p.nombre %> <%= p.apellido %></div>
+                                                    <div class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">DNI: <%= p.dni %></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-sm font-bold text-white"><%= empresa.moneda %> <%= parseFloat(p.monto_prestado).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %></td>
+                                        <td class="text-sm font-bold text-slate-400"><%= empresa.moneda %> <%= parseFloat(p.monto_total).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %></td>
+                                        <td>
+                                            <div class="flex flex-col gap-1">
+                                                <% if (p.estado === 'pagado') { %>
+                                                    <span class="px-2 py-0.5 rounded-md bg-accent-success/10 text-accent-success text-[9px] font-bold uppercase border border-accent-success/20 w-fit">Pagado</span>
+                                                <% } else { %>
+                                                    <span class="px-2 py-0.5 rounded-md bg-accent-danger/10 text-accent-danger text-[9px] font-bold uppercase border border-accent-danger/20 w-fit">Finalizado</span>
+                                                <% } %>
+                                                <% if(p.motivo_finalizacion) { %>
+                                                    <p class="text-[10px] text-slate-400 font-medium leading-tight truncate max-w-[160px]" title="<%= p.motivo_finalizacion %>"><%= p.motivo_finalizacion %></p>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <% if(p.nombre_articulo) { %>
+                                                <div class="flex items-center gap-2">
+                                                    <% if(p.garantia_final === 'abandonado' || p.estado_garantia === 'abandonado') { %>
+                                                        <span class="px-2 py-1 rounded-md bg-accent-danger/10 text-accent-danger text-[9px] font-bold uppercase border border-accent-danger/20">Abandonado</span>
+                                                    <% } else { %>
+                                                        <span class="px-2 py-1 rounded-md bg-accent-success/10 text-accent-success text-[9px] font-bold uppercase border border-accent-success/20">Devuelto</span>
+                                                    <% } %>
+                                                    <span class="text-[10px] text-slate-500 font-bold truncate max-w-[100px]" title="<%= p.nombre_articulo %>"><%= p.nombre_articulo %></span>
+                                                </div>
+                                            <% } else { %>
+                                                <span class="text-[10px] text-slate-600 italic">Sin garantía</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="text-end pe-6">
+                                            <span class="text-xs text-slate-500 font-bold">
+                                                <%= new Date(p.fecha_fin).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="py-20 flex flex-col items-center justify-center space-y-4">
+                    <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-3xl text-slate-700 border border-white/5">
+                        <i class="bi bi-journal-check"></i>
+                    </div>
+                    <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">No hay préstamos cerrados</p>
+                    <p class="text-xs text-slate-600">Tanto préstamos pagados como finalizados aparecerán aquí.</p>
+                </div>
+            <% } %>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <a href="/ahorros" class="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    <i class="bi bi-arrow-left text-lg"></i>
+                </a>
+                <h1 class="text-lg font-bold text-white tracking-tight">Expediente de Ahorros</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-success/10 text-accent-success text-[10px] font-bold uppercase tracking-wider border border-accent-success/20">Consulta Detallada</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="window.print()" class="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-colors">
+                    <i class="bi bi-printer"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-8">
+            <% if(mensajeError && mensajeError.length > 0) { %>
+                <div class="p-4 rounded-xl bg-accent-danger/10 border border-accent-danger/20 text-accent-danger text-sm font-bold flex items-center gap-3 animate-fade-in">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <%= mensajeError %>
+                </div>
+            <% } %>
+
+            <% if(mensajeExito && mensajeExito.length > 0) { %>
+                <div class="p-4 rounded-xl bg-accent-success/10 border border-accent-success/20 text-accent-success text-sm font-bold flex items-center gap-3 animate-fade-in">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <%= mensajeExito %>
+                </div>
+            <% } %>
+
+            <!-- Account Hero -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <!-- Profile & Balance -->
+                <div class="lg:col-span-8 card p-8 bg-dark-800/50 border-white/5 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-500">
+                        <i class="bi bi-piggy-bank-fill text-9xl text-white"></i>
+                    </div>
+                    
+                    <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-accent-primary/10 text-accent-primary flex items-center justify-center text-2xl font-bold">
+                                    <%= cuenta.nombre.charAt(0) %>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-black text-white"><%= cuenta.nombre %> <%= cuenta.apellido %></h2>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Cuenta de Ahorro #AC-<%= cuenta.id.toString().padStart(4, '0') %></p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-4 pt-2">
+                                <div class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
+                                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter block mb-0.5">Rendimiento</span>
+                                    <span class="text-xs font-bold text-accent-info"><%= cuenta.tasa_interes ? parseFloat(cuenta.tasa_interes).toFixed(2) : '0.00' %>% E.A.</span>
+                                </div>
+                                <div class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
+                                    <span class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter block mb-0.5">Vencimiento</span>
+                                    <span class="text-xs font-bold text-slate-300"><%= cuenta.plazo_meses || 0 %> Meses</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="md:text-right flex flex-col md:justify-center">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] mb-2">Liquidez Disponible</p>
+                            <div class="flex items-center md:justify-end gap-3 text-accent-success">
+                                <span class="text-2xl font-bold"><%= empresa.moneda %></span>
+                                <h3 class="text-5xl font-black tracking-tighter"><%= parseFloat(cuenta.saldo_actual).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %></h3>
+                            </div>
+                            <%
+                                let saldo = parseFloat(cuenta.saldo_actual) || 0;
+                                let tasa = parseFloat(cuenta.tasa_interes) || 0;
+                                let plazo = parseInt(cuenta.plazo_meses) || 0;
+                                let interesEstimado = saldo * (tasa / 100) * (plazo / 12);
+                            %>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mt-2 italic">
+                                + <%= empresa.moneda %> <%= interesEstimado.toLocaleString() %> intereses estimados al cierre
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Form -->
+                <div class="lg:col-span-4 card p-6 bg-dark-800 border-accent-primary/20 shadow-xl shadow-accent-primary/5">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <i class="bi bi-shuffle text-accent-primary"></i>
+                        Ejecutar Operación
+                    </h3>
+                    <form action="/ahorros/transaccion" method="POST" class="space-y-4">
+                        <input type="hidden" name="cuenta_id" value="<%= cuenta.id %>">
+                        
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Tipo de Movimiento</label>
+                            <select name="tipo" class="w-full px-4 py-3 bg-dark-900 border border-white/5 rounded-xl text-sm text-white focus:border-accent-primary transition-all cursor-pointer" required>
+                                <option value="deposito">📥 Depósito (Entrada)</option>
+                                <option value="retiro">📤 Retiro (Salida)</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Importe (<%= empresa.moneda %>)</label>
+                            <input type="number" step="0.01" name="monto" class="w-full px-4 py-4 bg-dark-900 border border-white/5 rounded-xl text-2xl font-black text-white focus:border-accent-primary transition-all placeholder:text-slate-800" placeholder="0.00" required>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Referencia</label>
+                            <textarea name="observacion" class="w-full px-4 py-3 bg-dark-900 border border-white/5 rounded-xl text-xs text-white focus:border-accent-primary transition-all" rows="2" placeholder="Motivo de la operación..."></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 rounded-xl bg-accent-primary text-white font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-accent-primary/20">
+                            Procesar Transacción
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="card overflow-hidden">
+                <div class="px-8 py-5 border-b border-white/5 flex items-center justify-between bg-dark-800/30">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-widest">Libro de Movimientos</h3>
+                    <div class="flex gap-2">
+                        <span class="px-2 py-0.5 rounded-md bg-white/5 text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Últimos 50 registros</span>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-8">Fecha y Hora</th>
+                                <th>Operación</th>
+                                <th>Referencia / Detalle</th>
+                                <th class="text-end">Monto Movimiento</th>
+                                <th class="text-center pe-8">Comprobante</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if(movimientos.length > 0) { %>
+                                <% movimientos.forEach(m => { %>
+                                    <tr class="group border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                                        <td class="ps-8">
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-medium text-slate-300"><%= new Date(m.fecha_movimiento).toLocaleDateString() %></span>
+                                                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter"><%= new Date(m.fecha_movimiento).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) %></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <% if(m.tipo_movimiento == 'deposito') { %>
+                                                <span class="px-2 py-1 rounded-md bg-accent-success/10 text-accent-success text-[10px] font-bold uppercase border border-accent-success/20">
+                                                    <i class="bi bi-arrow-down-left mr-1"></i>Depósito
+                                                </span>
+                                            <% } else { %>
+                                                <span class="px-2 py-1 rounded-md bg-accent-danger/10 text-accent-danger text-[10px] font-bold uppercase border border-accent-danger/20">
+                                                    <i class="bi bi-arrow-up-right mr-1"></i>Retiro
+                                                </span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs text-slate-500 max-w-xs truncate"><%= m.observacion || 'Sin detalles adicionales' %></p>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-sm font-black <%= m.tipo_movimiento == 'deposito' ? 'text-accent-success' : 'text-accent-danger' %>">
+                                                <%= m.tipo_movimiento == 'deposito' ? '+' : '-' %> <%= empresa.moneda %> <%= parseFloat(m.monto).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                                            </span>
+                                        </td>
+                                        <td class="text-center pe-8">
+                                            <a href="/reportes/ticket_ahorro/<%= m.id %>" target="_blank" class="w-8 h-8 rounded-lg bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all inline-flex items-center justify-center">
+                                                <i class="bi bi-printer"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="py-16 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl text-slate-700">
+                                                <i class="bi bi-clipboard2-data"></i>
+                                            </div>
+                                            <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">No hay registros de transacciones para esta cuenta</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

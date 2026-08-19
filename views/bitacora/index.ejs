@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Bitácora de Auditoría</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary text-[10px] font-bold uppercase tracking-wider border border-accent-primary/20">Seguridad Inmutable</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-lg bg-white/5 text-[10px] font-bold text-slate-500 uppercase tracking-widest border border-white/5">
+                    Historial de Operaciones
+                </span>
+            </div>
+        </header>
+
+        <div class="p-8">
+            <div class="card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-6">Cronología / Evento</th>
+                                <th>Autor de la Acción</th>
+                                <th>Tipo de Operación</th>
+                                <th class="pe-6">Descripción Detallada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (registros && registros.length > 0) { %>
+                                <% registros.forEach(reg => { %>
+                                    <tr class="group border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                                        <td class="ps-6 py-4">
+                                            <div class="flex flex-col">
+                                                <span class="text-xs font-bold text-slate-300">
+                                                    <% 
+                                                        let fechaMostrar = reg.fecha || reg.created_at;
+                                                        let d = new Date(fechaMostrar);
+                                                        let fechaTexto = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                                        let horaTexto = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                                                    %>
+                                                    <%= fechaTexto %>
+                                                </span>
+                                                <span class="text-[10px] font-mono text-slate-600 font-bold tracking-tighter"><%= horaTexto %></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded bg-dark-700 flex items-center justify-center text-[10px] font-bold text-slate-400 border border-white/5 uppercase">
+                                                    <%= (reg.usuario || 'S').charAt(0) %>
+                                                </div>
+                                                <span class="text-xs font-bold text-slate-300 capitalize"><%= reg.usuario || 'Proceso Sistema' %></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <% 
+                                                let badgeClass = 'bg-slate-500/10 text-slate-500 border-slate-500/20';
+                                                let icon = 'bi-info-circle';
+                                                let accion = (reg.accion || 'INFO').toUpperCase();
+                                                
+                                                if(accion.includes('REGISTRAR') || accion.includes('CREAR')) {
+                                                    badgeClass = 'bg-accent-success/10 text-accent-success border-accent-success/20';
+                                                    icon = 'bi-plus-circle';
+                                                } else if(accion.includes('ELIMINAR')) {
+                                                    badgeClass = 'bg-accent-danger/10 text-accent-danger border-accent-danger/20';
+                                                    icon = 'bi-trash3';
+                                                } else if(accion.includes('EDITAR') || accion.includes('ACTUALIZAR')) {
+                                                    badgeClass = 'bg-accent-warning/10 text-accent-warning border-accent-warning/20';
+                                                    icon = 'bi-pencil-square';
+                                                }
+                                            %>
+                                            <span class="px-2 py-1 rounded-md <%= badgeClass %> text-[9px] font-bold uppercase border flex items-center gap-1.5 w-fit">
+                                                <i class="bi <%= icon %>"></i>
+                                                <%= accion %>
+                                            </span>
+                                        </td>
+                                        <td class="pe-6 py-4">
+                                            <p class="text-[11px] text-slate-500 font-medium leading-relaxed max-w-lg italic">
+                                                <%= reg.detalle || 'No se proporcionaron detalles adicionales para esta operación.' %>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" class="py-20 text-center">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-2xl text-slate-700">
+                                                <i class="bi bi-shield-check"></i>
+                                            </div>
+                                            <p class="text-xs font-bold text-slate-600 uppercase tracking-widest">Sin registros de actividad detectados</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center gap-3 px-6 py-4 rounded-2xl bg-white/5 border border-white/5">
+                <i class="bi bi-fingerprint text-accent-info"></i>
+                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed">
+                    Aviso Legal: Esta bitácora es una herramienta de auditoría forense. Las entradas son generadas automáticamente por el núcleo del sistema y no pueden ser alteradas por ningún nivel de usuario.
+                </p>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

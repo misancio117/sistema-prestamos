@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Egresos Operativos</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-danger/10 text-accent-danger text-[10px] font-bold uppercase tracking-wider border border-accent-danger/20">Control de Caja</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button type="button" data-bs-toggle="modal" data-bs-target="#modalGasto" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-danger text-white text-sm font-bold shadow-lg shadow-accent-danger/20 hover:scale-105 active:scale-95 transition-all">
+                    <i class="bi bi-dash-lg"></i>
+                    <span>Registrar Salida</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-6">
+            <% if(mensajeExito && mensajeExito.length > 0) { %>
+                <div class="p-4 rounded-xl bg-accent-success/10 border border-accent-success/20 text-accent-success text-sm font-bold flex items-center gap-3 animate-fade-in">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <%= mensajeExito %>
+                </div>
+            <% } %>
+
+            <!-- Search & Filters -->
+            <div class="card p-4 bg-dark-800/50 border-white/5">
+                <form action="/gastos" method="GET" class="flex flex-wrap md:flex-nowrap gap-4 items-center">
+                    <div class="relative flex-grow group">
+                        <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-accent-primary transition-colors"></i>
+                        <input type="text" name="q" class="w-full pl-12 pr-4 py-3 bg-dark-900 border border-white/5 rounded-xl text-sm text-white focus:border-accent-primary focus:ring-0 transition-all" placeholder="Filtrar por concepto, categoría o detalle..." value="<%= busqueda %>">
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-white/5 text-white text-sm font-bold border border-white/5 hover:bg-white/10 transition-all">
+                            Buscar
+                        </button>
+                        <% if(busqueda) { %>
+                            <a href="/gastos" class="px-6 py-3 rounded-xl bg-accent-danger/10 text-accent-danger text-sm font-bold border border-accent-danger/20 hover:bg-accent-danger hover:text-white transition-all">
+                                Limpiar
+                            </a>
+                        <% } %>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Expenses Table -->
+            <div class="card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-6">Emisión</th>
+                                <th>Concepto / Descripción</th>
+                                <th>Clasificación</th>
+                                <th>Responsable</th>
+                                <th class="text-end">Importe</th>
+                                <th class="text-center pe-6">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (gastos.length > 0) { %>
+                                <% gastos.forEach(g => { %>
+                                    <tr class="group border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                                        <td class="ps-6">
+                                            <span class="text-xs font-medium text-slate-500"><%= new Date(g.fecha_gasto).toLocaleDateString() %></span>
+                                        </td>
+                                        <td>
+                                            <div class="font-bold text-white"><%= g.descripcion %></div>
+                                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mt-1">G-<%= g.id.toString().padStart(4, '0') %></p>
+                                        </td>
+                                        <td>
+                                            <span class="px-2 py-0.5 rounded-md bg-white/5 text-slate-400 text-[10px] font-bold uppercase border border-white/10">
+                                                <%= g.categoria %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded-full bg-dark-700 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                                    <%= g.registrado_por ? g.registrado_por.charAt(0) : 'U' %>
+                                                </div>
+                                                <span class="text-xs text-slate-400"><%= g.registrado_por %></span>
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="text-sm font-black text-accent-danger">
+                                                - <%= empresa.moneda %> <%= parseFloat(g.monto).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                                            </span>
+                                        </td>
+                                        <td class="text-center pe-6">
+                                            <a href="/gastos/eliminar/<%= g.id %>" class="w-8 h-8 rounded-lg bg-accent-danger/10 text-accent-danger hover:bg-accent-danger hover:text-white transition-all inline-flex items-center justify-center shadow-sm" onclick="return confirm('¿Está seguro de eliminar este registro de egreso?');">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="py-20 text-center">
+                                        <div class="flex flex-col items-center gap-4">
+                                            <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl text-slate-600">
+                                                <i class="bi bi-clipboard2-minus"></i>
+                                            </div>
+                                            <p class="text-sm font-medium text-slate-500 uppercase tracking-widest">No se encontraron registros de gastos</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <% if (totalPages > 1) { %>
+                    <div class="px-8 py-5 border-t border-white/5 flex items-center justify-between bg-dark-800/30">
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Página <%= currentPage %> de <%= totalPages %></span>
+                        <div class="flex gap-2">
+                            <a href="/gastos?page=<%= currentPage - 1 %>&q=<%= busqueda %>" class="px-4 py-2 rounded-xl bg-white/5 text-white text-xs font-bold border border-white/5 transition-all <%= currentPage == 1 ? 'opacity-50 pointer-events-none' : 'hover:bg-white/10' %>">Anterior</a>
+                            <a href="/gastos?page=<%= currentPage + 1 %>&q=<%= busqueda %>" class="px-4 py-2 rounded-xl bg-white/5 text-white text-xs font-bold border border-white/5 transition-all <%= currentPage == totalPages ? 'opacity-50 pointer-events-none' : 'hover:bg-white/10' %>">Siguiente</a>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Expense Modal -->
+        <div class="modal fade" id="modalGasto" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark-800 border-white/10 shadow-2xl rounded-3xl overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3 text-accent-danger">
+                            <div class="w-10 h-10 rounded-xl bg-accent-danger/10 flex items-center justify-center text-xl">
+                                <i class="bi bi-dash-circle-fill"></i>
+                            </div>
+                            <h5 class="text-lg font-bold text-white tracking-tight">Nueva Salida de Caja</h5>
+                        </div>
+                        <button type="button" class="p-2 rounded-xl text-slate-500 hover:text-white transition-colors" data-bs-dismiss="modal">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <form action="/gastos/guardar" method="POST">
+                        <div class="p-6 space-y-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Concepto del Gasto *</label>
+                                <input type="text" name="descripcion" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-danger focus:ring-0 transition-all" required placeholder="Ej: Pago de suministro eléctrico local central...">
+                            </div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Importe (<%= empresa.moneda %>) *</label>
+                                    <input type="number" step="0.01" name="monto" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white font-bold focus:border-accent-danger focus:ring-0 transition-all" required placeholder="0.00">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Categoría *</label>
+                                    <select name="categoria" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-danger focus:ring-0 transition-all cursor-pointer">
+                                        <option value="Servicios">Servicios</option>
+                                        <option value="Alquiler">Alquiler</option>
+                                        <option value="Sueldos">Sueldos</option>
+                                        <option value="Mantenimiento">Mantenimiento</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-1">Nota Adicional (Opcional)</label>
+                                <textarea name="observacion" class="w-full px-4 py-3 bg-dark-900 border border-white/10 rounded-xl text-sm text-white focus:border-accent-danger focus:ring-0 transition-all" rows="2" placeholder="Detalles de la transacción..."></textarea>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-dark-900/50 flex gap-4">
+                            <button type="submit" class="flex-1 py-3 rounded-xl bg-accent-danger text-white font-bold text-sm uppercase tracking-widest shadow-lg shadow-accent-danger/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                                Confirmar Egreso
+                            </button>
+                            <button type="button" class="flex-1 py-3 rounded-xl bg-white/5 text-slate-400 font-bold text-sm uppercase tracking-widest border border-white/5 hover:bg-white/10 hover:text-white transition-all" data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+</body>
+</html>

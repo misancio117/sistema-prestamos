@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Inventario de Garantías</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary text-[10px] font-bold uppercase tracking-wider border border-accent-primary/20">Bóveda de Activos</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="relative group">
+                    <i class="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-accent-primary transition-colors"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar por nombre o propietario..." class="bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-xs text-white focus:border-accent-primary focus:ring-0 transition-all w-64" value="<%= busqueda %>">
+                </div>
+                <a href="/empenos/crear" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-primary text-white text-xs font-bold shadow-lg shadow-accent-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    <i class="bi bi-plus-lg"></i>
+                    Nueva Garantía
+                </a>
+            </div>
+        </header>
+
+        <div class="p-8">
+            <% if(mensajeExito && mensajeExito.length > 0) { %>
+                <div class="mb-6 p-4 rounded-xl bg-accent-success/10 border border-accent-success/20 text-accent-success text-sm font-bold flex items-center gap-3">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <%= mensajeExito %>
+                </div>
+            <% } %>
+
+            <!-- Filter Tabs -->
+            <div class="mb-6 flex items-center gap-2 border-b border-white/5 pb-4">
+                <a href="/empenos?estado=todos<%= busqueda ? '&q=' + busqueda : '' %>" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all <%= filtroActual === 'todos' ? 'bg-accent-primary/10 text-accent-primary border border-accent-primary/20' : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent' %>">
+                    <i class="bi bi-grid-3x3-gap-fill mr-1.5"></i>Todos
+                </a>
+                <a href="/empenos?estado=en_custodia<%= busqueda ? '&q=' + busqueda : '' %>" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all <%= filtroActual === 'en_custodia' ? 'bg-accent-primary/10 text-accent-primary border border-accent-primary/20' : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent' %>">
+                    <i class="bi bi-shield-lock-fill mr-1.5"></i>En Custodia
+                </a>
+                <a href="/empenos?estado=devuelto<%= busqueda ? '&q=' + busqueda : '' %>" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all <%= filtroActual === 'devuelto' ? 'bg-accent-success/10 text-accent-success border border-accent-success/20' : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent' %>">
+                    <i class="bi bi-arrow-return-left mr-1.5"></i>Devueltos
+                </a>
+                <a href="/empenos?estado=abandonado<%= busqueda ? '&q=' + busqueda : '' %>" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all <%= filtroActual === 'abandonado' ? 'bg-accent-danger/10 text-accent-danger border border-accent-danger/20' : 'text-slate-500 hover:text-white hover:bg-white/5 border border-transparent' %>">
+                    <i class="bi bi-box-seam-fill mr-1.5"></i>Abandonados
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <% if (empenos.length > 0) { %>
+                    <% empenos.forEach(e => { %>
+                        <div class="empeno-card group">
+                            <div class="card h-full bg-dark-800/50 border-white/5 overflow-hidden flex flex-col hover:border-accent-primary/30 transition-all duration-500">
+                                <!-- Image Preview -->
+                                <div class="h-48 relative bg-dark-900 overflow-hidden">
+                                    <% if(e.imagen) { %>
+                                        <img src="/uploads/<%= e.imagen %>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                    <% } else { %>
+                                        <div class="w-full h-full flex flex-col items-center justify-center text-slate-700">
+                                            <i class="bi bi-camera-off text-4xl mb-2"></i>
+                                            <span class="text-[10px] font-bold uppercase tracking-widest">Sin Registro Visual</span>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <!-- Status Overlay -->
+                                    <div class="absolute top-4 left-4 flex gap-2">
+                                        <% if(e.estado === 'en_custodia') { %>
+                                            <span class="px-2 py-1 rounded-md bg-accent-primary text-white text-[9px] font-bold uppercase tracking-wider shadow-lg shadow-accent-primary/20">En Custodia</span>
+                                        <% } else if(e.estado === 'devuelto' || e.estado === 'retirado') { %>
+                                            <span class="px-2 py-1 rounded-md bg-accent-success text-white text-[9px] font-bold uppercase tracking-wider shadow-lg shadow-accent-success/20">Devuelto</span>
+                                        <% } else if(e.estado === 'abandonado') { %>
+                                            <span class="px-2 py-1 rounded-md bg-accent-danger text-white text-[9px] font-bold uppercase tracking-wider shadow-lg shadow-accent-danger/20">Abandonado</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+
+                                <!-- Card Content -->
+                                <div class="p-5 flex-1 flex flex-col space-y-4">
+                                    <div>
+                                        <h3 class="text-white font-bold text-sm mb-1 group-hover:text-accent-primary transition-colors"><%= e.nombre_articulo %></h3>
+                                        <p class="text-[10px] text-slate-500 line-clamp-2 leading-relaxed"><%= e.descripcion %></p>
+                                    </div>
+
+                                    <!-- Financial Stats -->
+                                    <div class="grid grid-cols-2 gap-4 py-3 border-y border-white/5">
+                                        <div class="space-y-1">
+                                            <span class="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">Valor Tasado</span>
+                                            <p class="text-xs font-bold text-slate-300"><%= empresa.moneda %><%= parseFloat(e.valor_tasacion).toLocaleString('en-US', {minimumFractionDigits: 2}) %></p>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <span class="text-[9px] font-bold text-slate-600 uppercase tracking-tighter">Financiado</span>
+                                            <p class="text-xs font-bold text-accent-primary"><%= empresa.moneda %><%= parseFloat(e.monto_prestado).toLocaleString('en-US', {minimumFractionDigits: 2}) %></p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Owner Info -->
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-dark-900 flex items-center justify-center text-xs font-bold text-slate-400 border border-white/5">
+                                            <%= e.nombre.charAt(0) %><%= e.apellido.charAt(0) %>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-[10px] font-bold text-white truncate"><%= e.nombre %> <%= e.apellido %></p>
+                                            <p class="text-[9px] text-slate-500 font-bold tracking-tighter uppercase">Propietario</p>
+                                        </div>
+                                    </div>
+
+                                    <% if(e.estado === 'en_custodia') { %>
+                                        <div class="pt-2 space-y-2">
+                                            <a href="/empenos/liberar/<%= e.id %>" onclick="return confirm('¿Confirmar devolución física del activo? Esta acción cerrará la custodia.');" class="w-full py-2.5 rounded-xl bg-accent-success/10 text-accent-success text-[10px] font-bold uppercase tracking-widest border border-accent-success/20 hover:bg-accent-success hover:text-white transition-all flex items-center justify-center gap-2">
+                                                <i class="bi bi-arrow-return-left"></i>
+                                                Ejecutar Devolución
+                                            </a>
+                                        </div>
+                                    <% } else if(e.estado === 'abandonado') { %>
+                                        <div class="pt-2">
+                                            <span class="w-full py-2.5 rounded-xl bg-accent-danger/10 text-accent-danger text-[10px] font-bold uppercase tracking-widest border border-accent-danger/20 flex items-center justify-center gap-2">
+                                                <i class="bi bi-box-seam-fill"></i>
+                                                Bien Abandonado
+                                            </span>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- Footer info -->
+                                <div class="px-5 py-3 bg-dark-900/50 border-t border-white/5 flex items-center justify-between">
+                                    <span class="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Límite Custodia</span>
+                                    <span class="text-[9px] font-bold <%= e.estado === 'en_custodia' ? 'text-accent-danger' : 'text-slate-500' %> uppercase">
+                                        <%= new Date(e.fecha_limite).toLocaleDateString() %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="col-span-full py-20 flex flex-col items-center justify-center space-y-4">
+                        <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-3xl text-slate-700 border border-white/5">
+                            <i class="bi bi-safe2"></i>
+                        </div>
+                        <p class="text-sm font-bold text-slate-500 uppercase tracking-widest">Bóveda Vacía</p>
+                        <% if(filtroActual !== 'todos') { %>
+                            <a href="/empenos" class="px-4 py-2 rounded-xl bg-white/5 text-xs font-bold text-slate-400 hover:text-white transition-all">Ver todos los activos</a>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const q = this.value.trim();
+                const params = new URLSearchParams(window.location.search);
+                if (q) { params.set('q', q); } else { params.delete('q'); }
+                params.delete('estado');
+                window.location.search = params.toString();
+            }
+        });
+    </script>
+</body>
+</html>

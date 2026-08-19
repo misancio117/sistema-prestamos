@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../partials/head') %>
+<body class="bg-dark-900 text-slate-200">
+    <%- include('../partials/sidebar') %>
+
+    <main class="transition-all duration-300">
+        <!-- Top Navbar -->
+        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-xl sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <h1 class="text-lg font-bold text-white tracking-tight">Cartera de Préstamos</h1>
+                <span class="px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary text-[10px] font-bold uppercase tracking-wider border border-accent-primary/20">Operaciones</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/reportes/excel/prestamos" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-success/10 text-accent-success text-sm font-bold border border-accent-success/20 hover:bg-accent-success hover:text-white transition-all">
+                    <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                    <span>Exportar</span>
+                </a>
+                <a href="/prestamos/crear" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent-info text-white text-sm font-bold shadow-lg shadow-accent-info/20 hover:scale-105 active:scale-95 transition-all">
+                    <i class="bi bi-plus-lg"></i>
+                    <span>Nuevo Préstamo</span>
+                </a>
+            </div>
+        </header>
+
+        <div class="p-8 space-y-6">
+            <!-- Stats Row -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="card p-4 bg-dark-800/40 flex items-center gap-4 border-l-4 border-accent-info">
+                    <div class="w-10 h-10 rounded-lg bg-accent-info/10 text-accent-info flex items-center justify-center text-xl">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Activos</p>
+                        <p class="text-lg font-bold text-white"><%= prestamos.length %></p>
+                    </div>
+                </div>
+                <div class="card p-4 bg-dark-800/40 flex items-center gap-4 border-l-4 border-accent-success">
+                    <div class="w-10 h-10 rounded-lg bg-accent-success/10 text-accent-success flex items-center justify-center text-xl">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Capital en Cartera</p>
+                        <p class="text-lg font-bold text-white"><%= empresa.moneda %> <%= prestamos.reduce((acc, p) => acc + parseFloat(p.monto_prestado), 0).toLocaleString() %></p>
+                    </div>
+                </div>
+                <div class="card p-4 bg-dark-800/40 flex items-center gap-4 border-l-4 border-accent-warning">
+                    <div class="w-10 h-10 rounded-lg bg-accent-warning/10 text-accent-warning flex items-center justify-center text-xl">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Por Cobrar</p>
+                        <p class="text-lg font-bold text-white"><%= empresa.moneda %> <%= prestamos.reduce((acc, p) => acc + (p.saldoPendiente || 0), 0).toLocaleString() %></p>
+                    </div>
+                </div>
+                <div class="card p-4 bg-dark-800/40 flex items-center gap-4 border-l-4 border-accent-danger">
+                    <div class="w-10 h-10 rounded-lg bg-accent-danger/10 text-accent-danger flex items-center justify-center text-xl">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Vencidos</p>
+                        <p class="text-lg font-bold text-white"><%= prestamos.filter(p => p.estado === 'vencido').length %></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="card p-4 bg-dark-800/50">
+                <form action="/prestamos" method="GET" id="searchForm" class="flex flex-col md:flex-row gap-4 items-end">
+                    <div class="flex-1 space-y-2 w-full">
+                        <label class="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">Buscar Préstamo</label>
+                        <div class="relative group">
+                            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-accent-info transition-colors"></i>
+                            <input type="text" name="q" id="searchInput" class="w-full pl-12 pr-10 py-3 bg-dark-900 border border-white/5 rounded-xl text-sm text-white focus:border-accent-info focus:ring-0 transition-all placeholder:text-slate-600" placeholder="Nombre de cliente o número de préstamo..." value="<%= busqueda %>" autocomplete="off">
+                            <span id="searchSpinner" class="absolute right-4 top-1/2 -translate-y-1/2 hidden"><i class="bi bi-arrow-repeat text-slate-500 animate-spin text-sm"></i></span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" id="searchSubmitBtn" class="px-6 py-3 rounded-xl bg-dark-700 text-white text-sm font-bold hover:bg-dark-600 transition-all">Filtrar</button>
+                        <% if(busqueda) { %>
+                            <a href="/prestamos" class="px-6 py-3 rounded-xl border border-white/5 text-slate-400 text-sm font-bold hover:bg-white/5 transition-all">Limpiar</a>
+                        <% } %>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Table -->
+            <div class="card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-6" style="width:34%">Titular del Crédito</th>
+                                <th style="width:14%">Monto Prestado</th>
+                                <th style="width:28%">Saldo por Devolver</th>
+                                <th style="width:24%">Objeto de Prenda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (prestamos.length > 0) { %>
+                                <% prestamos.forEach(p => { %>
+                                    <tr class="group cursor-pointer" onclick="abrirDetalle(<%= p.id %>)" style="cursor:pointer;">
+                                        <td class="ps-6">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-9 h-9 rounded-lg bg-dark-700 text-slate-400 flex items-center justify-center font-bold text-xs">
+                                                    <%= p.nombre.charAt(0) %><%= p.apellido.charAt(0) %>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-sm text-white group-hover:text-accent-info transition-colors"><%= p.nombre %> <%= p.apellido %></div>
+                                                    <div class="flex items-center gap-2 mt-0.5">
+                                                        <span class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">#PR-<%= p.id.toString().padStart(4, '0') %></span>
+                                                        <% if(p.estado == 'vencido') { %>
+                                                            <span class="px-1.5 py-0.5 rounded-md bg-accent-danger/10 text-accent-danger text-[8px] font-bold uppercase border border-accent-danger/20">Mora</span>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-sm font-bold text-white">
+                                            <%= empresa.moneda %> <%= parseFloat(p.monto_prestado).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                                        </td>
+                                        <td>
+                                            <div class="flex flex-col gap-1.5">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-sm font-bold <%= (p.saldoPendiente || 0) > 0 ? 'text-accent-warning' : 'text-accent-success' %>">
+                                                        <%= empresa.moneda %> <%= (p.saldoPendiente || 0).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %>
+                                                    </span>
+                                                    <span class="text-[9px] font-bold <%= p.porcentajeCompletado >= 100 ? 'text-accent-success' : 'text-slate-500' %>"><%= p.porcentajeCompletado %>%</span>
+                                                </div>
+                                                <div class="w-full h-1.5 rounded-full bg-dark-700 overflow-hidden">
+                                                    <div class="h-full rounded-full transition-all duration-500 <%= p.porcentajeCompletado >= 100 ? 'bg-accent-success' : p.porcentajeCompletado > 50 ? 'bg-accent-info' : 'bg-accent-warning' %>" style="width:<%= p.porcentajeCompletado %>%"></div>
+                                                </div>
+                                                <span class="text-[8px] text-slate-600 font-bold uppercase tracking-tight">de <%= empresa.moneda %> <%= parseFloat(p.monto_total).toLocaleString('es-ES', { minimumFractionDigits: 2 }) %></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <% if(p.nombre_articulo) { %>
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-7 h-7 rounded-md bg-accent-warning/10 text-accent-warning flex items-center justify-center text-xs">
+                                                        <i class="bi bi-box-seam"></i>
+                                                    </div>
+                                                    <span class="text-xs font-bold text-slate-300 truncate max-w-[180px]"><%= p.nombre_articulo %></span>
+                                                </div>
+                                            <% } else { %>
+                                                <span class="text-xs text-slate-600 italic flex items-center gap-2">
+                                                    <i class="bi bi-dash-circle"></i>
+                                                    Sin garantía
+                                                </span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" class="py-20 text-center">
+                                        <div class="flex flex-col items-center gap-3">
+                                            <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center text-3xl text-slate-600">
+                                                <i class="bi bi-bank"></i>
+                                            </div>
+                                            <p class="text-slate-500 font-medium">No se encontraron registros de préstamos.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <% if (totalPages > 1) { %>
+                    <div class="p-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/[0.01]">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                            Página <span class="text-white"><%= currentPage %></span> de <span class="text-white"><%= totalPages %></span>
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <a href="/prestamos?page=<%= currentPage - 1 %>&q=<%= busqueda %>" class="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-sm font-bold text-slate-400 hover:text-white transition-all <%= currentPage == 1 ? 'pointer-events-none opacity-30' : '' %>">
+                                <i class="bi bi-chevron-left"></i> Anterior
+                            </a>
+                            <a href="/prestamos?page=<%= currentPage + 1 %>&q=<%= busqueda %>" class="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-sm font-bold text-slate-400 hover:text-white transition-all <%= currentPage == totalPages ? 'pointer-events-none opacity-30' : '' %>">
+                                Siguiente <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+    </main>
+
+    <!-- Modal Detalle -->
+    <div id="modalDetalle" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" style="background:#0f172a;border:1px solid rgba(255,255,255,0.08);border-radius:16px;">
+                <div class="modal-header border-0 px-6 pt-5 pb-0">
+                    <div>
+                        <h5 class="text-white font-bold text-lg" id="modalTitulo">Cargando...</h5>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1" id="modalSubtitulo"></p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-6 py-4" id="modalBody">
+                    <div class="text-center py-8">
+                        <div class="spinner-border text-accent-info" role="status"></div>
+                        <p class="text-slate-400 text-sm mt-3">Cargando detalles...</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-6 pb-5 pt-0 flex gap-2 flex-wrap" id="modalAcciones"></div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-content .detail-label { font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+        .modal-content .detail-value { font-size:13px; font-weight:600; color:#f1f5f9; }
+        .modal-content .pago-item { display:flex; justify-content:space-between; align-items:center; padding:6px 10px; border-radius:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); }
+        .modal-content .pago-item:hover { background:rgba(255,255,255,0.05); }
+        .accion-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; transition:all 0.2s; border:none; cursor:pointer; text-decoration:none; }
+        .accion-btn:hover { transform:translateY(-1px); }
+        .accion-btn:active { transform:translateY(0); }
+        .accion-btn i { font-size:14px; }
+    </style>
+
+    <script>
+        function abrirDetalle(id) {
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+            modal.show();
+
+            document.getElementById('modalTitulo').textContent = 'Cargando...';
+            document.getElementById('modalSubtitulo').textContent = '';
+            document.getElementById('modalBody').innerHTML = `
+                <div class="text-center py-8">
+                    <div class="spinner-border text-accent-info" role="status"></div>
+                    <p class="text-slate-400 text-sm mt-3">Cargando detalles...</p>
+                </div>
+            `;
+            document.getElementById('modalAcciones').innerHTML = '';
+
+            fetch('/prestamos/detalle/' + id)
+                .then(r => r.json())
+                .then(data => {
+                    const p = data.prestamo;
+                    const m = data.moneda;
+
+                    if (!p) {
+                        document.getElementById('modalBody').innerHTML = '<p class="text-center text-slate-500 py-8">Préstamo no encontrado</p>';
+                        return;
+                    }
+
+                    document.getElementById('modalTitulo').textContent = p.nombre + ' ' + p.apellido;
+                    document.getElementById('modalSubtitulo').textContent = 'Expediente #PR-' + String(p.id).padStart(4, '0');
+
+                    const estadoBadge = p.estado === 'pendiente' ? '<span class="px-2 py-0.5 rounded-md bg-accent-warning/10 text-accent-warning text-[9px] font-bold uppercase border border-accent-warning/20">Vigente</span>'
+                        : p.estado === 'vencido' ? '<span class="px-2 py-0.5 rounded-md bg-accent-danger/10 text-accent-danger text-[9px] font-bold uppercase border border-accent-danger/20">En Mora</span>'
+                        : p.estado === 'pagado' ? '<span class="px-2 py-0.5 rounded-md bg-accent-success/10 text-accent-success text-[9px] font-bold uppercase border border-accent-success/20">Liquidado</span>'
+                        : '<span class="px-2 py-0.5 rounded-md bg-white/10 text-slate-400 text-[9px] font-bold uppercase border border-white/20">Finalizado</span>';
+
+                    const pagosHtml = p.pagos && p.pagos.length > 0
+                        ? p.pagos.map(pg => `
+                            <div class="pago-item">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-300">${new Date(pg.fecha_pago).toLocaleDateString('es-ES')}</span>
+                                    <span class="text-[9px] text-slate-600 ml-2">${new Date(pg.fecha_pago).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+                                </div>
+                                <span class="text-xs font-bold text-accent-success">+${m} ${parseFloat(pg.monto_pagado).toLocaleString('es-ES',{minimumFractionDigits:2})}</span>
+                            </div>
+                        `).join('')
+                        : '<p class="text-xs text-slate-600 italic text-center py-2">Sin pagos registrados</p>';
+
+                    const tieneEmpeno = p.nombre_articulo ? true : false;
+
+                    document.getElementById('modalBody').innerHTML = `
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <p class="detail-label">Estado</p>
+                                <div class="mt-1">${estadoBadge}</div>
+                            </div>
+                            <div>
+                                <p class="detail-label">Cédula de Identidad</p>
+                                <p class="detail-value">${p.dni}</p>
+                            </div>
+                            <div>
+                                <p class="detail-label">Teléfono</p>
+                                <p class="detail-value">${p.telefono || 'No registrado'}</p>
+                            </div>
+                            <div>
+                                <p class="detail-label">Email</p>
+                                <p class="detail-value">${p.email || 'No registrado'}</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-white/5 pt-4 mb-4">
+                            <p class="detail-label mb-3">Información del Préstamo</p>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <p class="detail-label">Capital Prestado</p>
+                                    <p class="detail-value">${m} ${parseFloat(p.monto_prestado).toLocaleString('es-ES',{minimumFractionDigits:2})}</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Total a Devolver</p>
+                                    <p class="detail-value">${m} ${parseFloat(p.monto_total).toLocaleString('es-ES',{minimumFractionDigits:2})}</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Saldo Pendiente</p>
+                                    <p class="detail-value" style="color:${p.totalPagado >= parseFloat(p.monto_total) ? '#22c55e' : '#eab308'}">${m} ${Math.max(0, parseFloat(p.monto_total) - p.totalPagado).toLocaleString('es-ES',{minimumFractionDigits:2})}</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Tasa de Interés</p>
+                                    <p class="detail-value">${parseFloat(p.tasa_interes).toFixed(2)}%</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Cuotas</p>
+                                    <p class="detail-value">${p.cuotas} cuota(s) — ${p.frecuencia.toUpperCase()}</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Sistema de Pago</p>
+                                    <p class="detail-value">${(p.sistema_pago || 'francés').charAt(0).toUpperCase() + (p.sistema_pago || 'francés').slice(1)}</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Fecha de Inicio</p>
+                                    <p class="detail-value">${new Date(p.fecha_inicio).toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'})}</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Primer Cobro</p>
+                                    <p class="detail-value">${p.fecha_primer_cobro ? new Date(p.fecha_primer_cobro).toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'}) : '—'}</p>
+                                </div>
+                                <div>
+                                    <p class="detail-label">Vencimiento</p>
+                                    <p class="detail-value">${new Date(p.fecha_fin).toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'})}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${tieneEmpeno ? `
+                        <div class="border-t border-white/5 pt-4 mb-4">
+                            <p class="detail-label mb-3">Garantía Prendaria</p>
+                            <div class="p-3 rounded-xl bg-accent-warning/5 border border-accent-warning/20">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="bi bi-box-seam text-accent-warning"></i>
+                                    <span class="text-sm font-bold text-white">${p.nombre_articulo}</span>
+                                </div>
+                                ${p.empeno_descripcion ? '<p class="text-xs text-slate-400">' + p.empeno_descripcion + '</p>' : ''}
+                                ${p.valor_tasacion ? '<p class="text-[10px] text-slate-500 font-bold uppercase mt-1">Tasación: ' + m + ' ' + parseFloat(p.valor_tasacion).toLocaleString('es-ES',{minimumFractionDigits:2}) + '</p>' : ''}
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div class="border-t border-white/5 pt-4">
+                            <p class="detail-label mb-3">Historial de Pagos</p>
+                            <div class="space-y-1.5 max-h-[200px] overflow-y-auto pr-1">
+                                ${pagosHtml}
+                            </div>
+                        </div>
+                    `;
+
+                    const acciones = document.getElementById('modalAcciones');
+                    acciones.innerHTML = '';
+
+                    if (p.estado !== 'pagado' && p.estado !== 'finalizado') {
+                        const btnCobrar = document.createElement('a');
+                        btnCobrar.href = '/pagos/registrar/' + p.id;
+                        btnCobrar.className = 'accion-btn bg-accent-success/10 text-accent-success border border-accent-success/20 hover:bg-accent-success hover:text-white';
+                        btnCobrar.innerHTML = '<i class="bi bi-cash-coin"></i> Cobrar';
+                        acciones.appendChild(btnCobrar);
+
+                        const btnFinalizar = document.createElement('button');
+                        btnFinalizar.className = 'accion-btn bg-accent-danger/10 text-accent-danger border border-accent-danger/20 hover:bg-accent-danger hover:text-white';
+                        btnFinalizar.innerHTML = '<i class="bi bi-x-circle"></i> Finalizar';
+                        btnFinalizar.onclick = () => { bootstrap.Modal.getInstance(document.getElementById('modalDetalle')).hide(); setTimeout(() => finalizarDeuda(null, p.id), 300); };
+                        acciones.appendChild(btnFinalizar);
+                    }
+
+                    if (!p.tienePagos) {
+                        const btnEditar = document.createElement('a');
+                        btnEditar.href = '/prestamos/editar/' + p.id;
+                        btnEditar.className = 'accion-btn bg-accent-info/10 text-accent-info border border-accent-info/20 hover:bg-accent-info hover:text-white';
+                        btnEditar.innerHTML = '<i class="bi bi-pencil-square"></i> Editar';
+                        acciones.appendChild(btnEditar);
+                    }
+
+                    const btnCrono = document.createElement('a');
+                    btnCrono.href = '/prestamos/cronograma/' + p.id;
+                    btnCrono.className = 'accion-btn bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white';
+                    btnCrono.innerHTML = '<i class="bi bi-calendar-week"></i> Cronograma';
+                    acciones.appendChild(btnCrono);
+
+                    const btnContrato = document.createElement('a');
+                    btnContrato.href = '/prestamos/' + p.id + '/contrato';
+                    btnContrato.target = '_blank';
+                    btnContrato.className = 'accion-btn bg-white/5 text-slate-300 border border-white/10 hover:bg-accent-danger/10 hover:text-accent-danger';
+                    btnContrato.innerHTML = '<i class="bi bi-file-earmark-pdf"></i> Contrato';
+                    acciones.appendChild(btnContrato);
+                })
+                .catch(err => {
+                    document.getElementById('modalBody').innerHTML = '<p class="text-center text-accent-danger py-8">Error al cargar detalles</p>';
+                });
+        }
+
+        // Live search with debounce
+        (function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchForm = document.getElementById('searchForm');
+            const spinner = document.getElementById('searchSpinner');
+            let debounceTimer;
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    if (this.value.trim().length >= 0) {
+                        spinner.classList.remove('hidden');
+                        debounceTimer = setTimeout(() => {
+                            searchForm.submit();
+                        }, 400);
+                    }
+                    const clearBtn = searchForm.querySelector('a[href="/prestamos"]');
+                    if (clearBtn) {
+                        clearBtn.style.display = this.value.trim() ? '' : 'none';
+                    }
+                });
+
+                // Stop spinner when page finishes loading
+                window.addEventListener('load', () => spinner.classList.add('hidden'));
+            }
+        })();
+    </script>
+</body>
+</html>
